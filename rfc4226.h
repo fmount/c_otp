@@ -1,18 +1,15 @@
 //#pragma once
 #ifndef RFC4226_H
 #define RFC4226_H
-#define VALID_TOKEN 8
-#define MASK 0x0f
 
-#define mod_k(dbin_code, power) (dbin_code % power)
+#include<stdint.h>
+#include<stdlib.h>
 
 //MAIN HOTP function
-unsigned char* HOTP(char *key, char *plaintext, int plen, int digits);
+int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits);
 //First step
-unsigned char* hmac(char *key, int kl, unsigned char* data, int dlen);
+uint8_t* hmac(unsigned char *key, int kl, uint64_t interval);
 //Second step
-int DT(unsigned char *hmac_hash, int len);
-//Third and final step
-unsigned char* mod_hotp(int bin_code, int digits);
+uint32_t DT(uint8_t * digest);
 
 #endif
