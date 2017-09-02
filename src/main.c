@@ -16,6 +16,7 @@
 
 #include "utils.h"
 #include "rfc4226.h"
+#include "rfc6238.h"
 
 int main(int argc, char * argv[]){
 
@@ -52,14 +53,14 @@ int main(int argc, char * argv[]){
 	 int digits = 6;
 	 HOTP(k, keylen, t, digits);
 	 ********/
-	uint64_t t = 1234;
+
 	int digits = 6;
-	HOTP(k, keylen, t, digits);
-
-	//time_t t0 = 0;
-	//time_t t = floor((time(NULL) - t0) / 30);
-	//TOTP(key, (char *)&t, sizeof(t), digits);
-
+	time_t t0 = 0;
+	time_t t = floor((time(NULL) - t0) / 30);
+	
+	//TOTP(k, keylen, (char *)&t, digits);
+	TOTP(k, keylen, t, digits);
+	
 
 	return 0;
 }
