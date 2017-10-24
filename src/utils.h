@@ -1,5 +1,5 @@
 /***
- * 
+ *
  *  TOTP: Time-Based One-Time Password Algorithm
  *  Copyright (c) 2017, fmount <francesco.pan001@gmail.com>
  *
