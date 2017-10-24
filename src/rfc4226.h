@@ -8,8 +8,8 @@
 //MAIN HOTP function
 int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits);
 //First step
-uint8_t* hmac(unsigned char *key, int kl, uint64_t interval);
+uint8_t *hmac(unsigned char *key, int kl, uint64_t interval);
 //Second step
-uint32_t DT(uint8_t * digest);
+uint32_t DT(uint8_t *digest);
 
 #endif
