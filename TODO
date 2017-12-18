@@ -1,0 +1,3 @@
+a. Read rc file, parse it and create providers
+b. encrypt / decrypt using gpg and copy providers in a protected mem area
+c. Make it multithread
