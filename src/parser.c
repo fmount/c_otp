@@ -4,12 +4,8 @@
 #include<errno.h>
 #include<string.h>
 #include<unistd.h>
+#include "plist.h"
 
-
-typedef struct {
-    char *pname;
-    char *psecret;
-} PROVIDER;
 
 
 PROVIDER *split_str(char *spl, char delim)
@@ -28,19 +24,14 @@ PROVIDER *split_str(char *spl, char delim)
     tmp_name = (char *) malloc(count * sizeof(char));
     tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
 
-    //Get first part of the string
-    //for (int i = 0; i < count; i++)
-    //  tmp_name[i] = spl[i];
-
-    //Get first part of the string
+    /*
+	 * Get first part of the string
+	 */
     memcpy(tmp_name, spl, count);
-
-    //Get second part of the string
-    memcpy(tmp_secret, spl+strlen(tmp_name), strlen(spl)-strlen(tmp_name));
-
-    //Get second part of the string
-    //for (int i = (count+1), j = 0; i < strlen(spl); i++, j++)
-    //  tmp_secret[j] = spl[i];
+    /*
+	 * Get second part of the string
+	 */
+    memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
 
 #if DEBUG
 
@@ -57,17 +48,15 @@ PROVIDER *split_str(char *spl, char delim)
     p->psecret = tmp_secret;
 
     return p;
-
 }
 
-void process_provider(char *line, size_t len)
+PROVIDER *process_provider(NODE **plist, char *line)
 {
     PROVIDER *p;
-
     p = split_str(line, ':');
-
-    printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret);
-
+	pushHead(plist, p->pname, p->psecret);
+    /* printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret); */
+	return p;
 }
 
 int main(int argc, char **argv)
@@ -77,6 +66,7 @@ int main(int argc, char **argv)
     size_t len = 1024;
     char *fname = NULL;
     int opt;
+	NODE *provider_list = NULL;
 
     if(argc <= 1) {
         fprintf(stderr, "Provide at least one argument\n");
@@ -86,7 +76,6 @@ int main(int argc, char **argv)
     while((opt = getopt(argc, argv, "f:v")) != -1 ) {
         switch(opt) {
             case 'f':
-              //fname = argv[0];
               fname = optarg;
               break;
             case 'v':
@@ -96,7 +85,8 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Got fname %s\n", fname);
+	if (fname == NULL)
+		exit(ENOENT);
 
     f = fopen(fname, "r");
 
@@ -105,13 +95,17 @@ int main(int argc, char **argv)
 
     char *line = NULL;
 
-    while (getline(&line, &len, f) != -1)
-        if (line[0] == '#')
-            printf("Get a comment, ignore it\n");
+    while (getline(&line, &len, f) != -1) {
+        if (line[0] != '#')
+		/*	printf("Got a comment, ignore it\n");
         else
-            process_provider(line, len);
+		*/
+			process_provider(&provider_list, line);
+	}
+
     free(line);
 
+	printlist(&provider_list);
     exit(EXIT_SUCCESS);
 
     return 0;
