@@ -2,6 +2,7 @@ BIN=bin
 D=1
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
+SRC := $(filter-out src/parser.c, $(SRC))
 OBJECTS=*.o
 TNAME=c_otp
 # compiler
