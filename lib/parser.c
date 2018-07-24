@@ -4,9 +4,12 @@
 #include<errno.h>
 #include<string.h>
 #include<unistd.h>
+
 #include "plist.h"
+#include "parser.h"
 
 
+//static NODE *provider_list = NULL;
 
 PROVIDER *split_str(char *spl, char delim)
 {
@@ -25,20 +28,20 @@ PROVIDER *split_str(char *spl, char delim)
     tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
 
     /*
-	 * Get first part of the string
-	 */
+     * Get first part of the string
+     */
     memcpy(tmp_name, spl, count);
     /*
-	 * Get second part of the string
-	 */
+     * Get second part of the string
+     */
     memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
 
-#if DEBUG
+#ifdef DEBUG
 
-    printf("[GOT LEN]: %d\n", strlen(spl));
-    printf("[PROVIDER SECTION]: %d characters\n", count);
+    printf("[GOT LEN]: %ld\n", strlen(spl));
+    printf("[PROVIDER SECTION]: %ld characters\n", count);
     printf("[GOT NAME]: %s\n", tmp_name);
-    printf("[SECRET SECTION]: %d\n", (strlen(spl)-count+1));
+    printf("[SECRET SECTION]: %ld\n", (strlen(spl)-count+1));
     printf("[GOT SECRET]: %s\n", tmp_secret);
 
 #endif
@@ -54,20 +57,42 @@ PROVIDER *process_provider(NODE **plist, char *line)
 {
     PROVIDER *p;
     p = split_str(line, ':');
-	pushHead(plist, p->pname, p->psecret);
+    push(plist, p->pname, p->psecret);
     /* printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret); */
-	return p;
+    return p;
 }
 
-int main(int argc, char **argv)
+void load_providers(char *fname)
 {
 
     FILE *f;
     size_t len = 1024;
+
+    if (fname == NULL)
+        exit(ENOENT);
+    f = fopen(fname, "r");
+    if (f == NULL)
+        exit(ENOENT);
+    char *line = NULL;
+    while (getline(&line, &len, f) != -1) {
+        if (line[0] != '#')
+            process_provider(&provider_list, line);
+    }
+
+    free(line);
+
+    #ifdef DEBUG
+
+    print(provider_list);
+
+    #endif
+}
+
+/*int main(int argc, char **argv)
+{
+
     char *fname = NULL;
     int opt;
-	NODE *provider_list = NULL;
-
     if(argc <= 1) {
         fprintf(stderr, "Provide at least one argument\n");
         return -1;
@@ -85,28 +110,6 @@ int main(int argc, char **argv)
         }
     }
 
-	if (fname == NULL)
-		exit(ENOENT);
-
-    f = fopen(fname, "r");
-
-    if (f == NULL)
-        exit(ENOENT);
-
-    char *line = NULL;
-
-    while (getline(&line, &len, f) != -1) {
-        if (line[0] != '#')
-		/*	printf("Got a comment, ignore it\n");
-        else
-		*/
-			process_provider(&provider_list, line);
-	}
-
-    free(line);
-
-	printlist(&provider_list);
-    exit(EXIT_SUCCESS);
-
+    load_providers(fname);
     return 0;
-}
+}*/
