@@ -13,8 +13,6 @@
  *  $ echo -n "1234" | openssl dgst -sha1 -hmac "test"
  */
 
-#include<unistd.h>
-
 #include "rfc4226.h"
 #include "rfc6238.h"
 
@@ -25,10 +23,27 @@
 #define DIGITS 6
 #define VALIDITY 30
 
-
 int totp(uint8_t *k, size_t keylen) {
     time_t t = floor((time(NULL) - T0) / VALIDITY);
     TOTP(k, keylen, t, DIGITS);
+    return 0;
+}
+
+int print_providers(PROVIDER *cur_provider) {
+    size_t pos, len, keylen;
+    uint8_t *k;
+    k = (uint8_t *)cur_provider->psecret;
+    len = strlen(cur_provider->psecret);
+    if (validate_b32key(cur_provider->psecret, len, pos) == 1) {
+        fprintf(stderr, "%s: invalid base32 secret\n", optarg);
+        return -1;
+    }
+    keylen = decode_b32key(&k, len);
+    while(1) {
+        while (provider_list->next != NULL) {
+            totp(k, keylen);
+        }
+    }
     return 0;
 }
 
@@ -70,4 +85,6 @@ int main(int argc, char *argv[])
                 return -1;
         }
     }
+
+
 }

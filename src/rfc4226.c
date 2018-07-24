@@ -19,8 +19,6 @@
 #include<math.h>
 #include<openssl/hmac.h>
 #include <openssl/evp.h>
-//#include "rfc4226.h"
-
 
 
 uint8_t *hmac(unsigned char *key, int kl, uint64_t interval)
@@ -39,10 +37,8 @@ uint32_t DT(uint8_t *digest)
 #ifdef DEBUG
 
     char mdString[40];
-
     for (int i = 0; i < 20; i++)
         sprintf(&mdString[i*2], "%02x", (unsigned int)digest[i]);
-
     printf("HMAC digest: %s\n", mdString);
 
 #endif
@@ -82,7 +78,7 @@ int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
     uint32_t result;
     uint32_t endianness;
 
-#if DEBUG
+#ifdef DEBUG
     printf("KEY IS: %s\n", key);
     printf("KEY LEN IS: %d\n", kl);
     printf("COUNTER IS: %d\n", interval);
@@ -103,9 +99,8 @@ int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
     uint32_t dbc = DT(digest);
     //Third Phase: calculate the mod_k of the dbc to get the correct number
     result = mod_hotp(dbc, digits);
-    //printf("OTP CODE: %s\n", result);
 
-    printf("OTP VALUE IS: %06u\n", result);
+    printf("The resulting OTP value is: %06u\n", result);
     return 0;
 
 }
