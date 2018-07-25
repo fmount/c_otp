@@ -21,7 +21,6 @@
 #include<string.h>
 
 int validate_b32key(char *k, size_t len, size_t pos);
-
 size_t decode_b32key(uint8_t **k, size_t len);
 
 #endif

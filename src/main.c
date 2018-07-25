@@ -16,8 +16,8 @@
 #include "rfc4226.h"
 #include "rfc6238.h"
 
-#include "../lib/utils.h"
-#include "../lib/parser.h"
+#include "utils.h"
+#include "parser.h"
 
 #define T0 0
 #define DIGITS 6
