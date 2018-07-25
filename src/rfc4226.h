@@ -19,7 +19,7 @@
 #include<stdlib.h>
 
 //MAIN HOTP function
-int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits);
+uint32_t HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits);
 //First step
 uint8_t *hmac(unsigned char *key, int kl, uint64_t interval);
 //Second step

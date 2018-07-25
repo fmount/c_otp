@@ -61,7 +61,7 @@ PROVIDER *split_str(char *spl, char delim)
     p = malloc(sizeof(PROVIDER));
     p->pname = tmp_name;
     p->psecret = tmp_secret;
-
+    p->otpvalue = NULL;
     return p;
 }
 
@@ -69,7 +69,7 @@ PROVIDER *process_provider(NODE **plist, char *line)
 {
     PROVIDER *p;
     p = split_str(line, ':');
-    push(plist, p->pname, p->psecret);
+    push(plist, p->pname, p->psecret, p->otpvalue);
     /* printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret); */
     return p;
 }

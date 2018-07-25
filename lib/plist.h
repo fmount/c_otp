@@ -17,24 +17,26 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdint.h>
 #include<stdbool.h>
 
 
 typedef struct {
     char *pname;
     char *psecret;
+    uint32_t *otpvalue;
 } PROVIDER;
 
 
 typedef struct Node {
-
     PROVIDER *p;
     struct Node *next;
 } NODE;
 
 
 void print(NODE *head);
-void push(NODE **head, char *pname, char *psecret);
+int update_value(NODE **head, char *pname, uint32_t optvalue);
+void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue);
 void del(char *del, NODE *head);
 bool exists(NODE *head, NODE *target);
 NODE *pop(NODE **head);
