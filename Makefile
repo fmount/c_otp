@@ -1,5 +1,5 @@
 BIN=bin
-D=1
+D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)

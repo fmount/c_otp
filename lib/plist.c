@@ -25,22 +25,25 @@ void print(NODE *head) {
 
     printf("[");
 
-    while (cur != NULL) {
-        printf(" (%s:%s)\n ", (cur->p)->pname, (cur->p)->psecret);
+    while (cur != NULL && (cur->p)->otpvalue != NULL) {
+        printf(" (%s: %06u) ", (cur->p)->pname, (cur->p)->otpvalue);
         cur = cur->next;
     }
-    printf("]");
+    printf("]\n");
 
 }
+
 
 bool exists(NODE *head, NODE *target) {
     printf("Check if the target node exists in list\n");
 
     NODE *cur = NULL;
     cur = head;
-    while(cur != NULL)
+    while(cur != NULL) {
         if((cur->p)->pname == (target->p)->pname)
             return 1;
+        cur = cur->next;
+    }
     return 0;
 
 }
@@ -53,22 +56,37 @@ NODE *get_node(NODE *head, char *pname) {
         if((cur->p)->pname == pname) {
             return cur;
         }
+        cur = cur->next;
     }
     return NULL;
 }
 
-void push(NODE **head, char *pname, char *psecret) {
+int update_value(NODE **head, char *pname, uint32_t optvalue) {
+    NODE *cur;
+    cur = *head;
+    uint32_t *x = &optvalue;
+    while(cur != NULL) {
+        if((cur->p)->pname == pname) {
+            (cur->p)->otpvalue = *x;
+            return 0;
+        }
+        cur = cur->next;
+    }
+    return -1;
+}
+
+void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
 
     NODE *cur = (NODE*) malloc(sizeof(NODE));
 
     PROVIDER *p = (PROVIDER*) malloc(sizeof(PROVIDER));
     p->pname = pname;
     p->psecret = psecret;
+    p->otpvalue = otpvalue;
     cur->p = p;
 
     cur->next = *head;
     *head = cur;
-    //printf("%s\n", (cur->p)->pname);
 }
 
 NODE *pop(NODE **head) {

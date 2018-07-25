@@ -71,7 +71,7 @@ uint32_t mod_hotp(uint32_t bin_code, int digits)
 }
 
 
-int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
+uint32_t HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
 {
 
     uint8_t *digest;
@@ -100,7 +100,6 @@ int HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
     //Third Phase: calculate the mod_k of the dbc to get the correct number
     result = mod_hotp(dbc, digits);
 
-    printf("The resulting OTP value is: %06u\n", result);
-    return 0;
+    return result;
 
 }
