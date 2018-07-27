@@ -29,7 +29,7 @@ According to the help of the command, you can have to mode:
 
 To do this simply run:
 
-        `c_otp -b <BASE32_SECRET>`
+        $ c_otp -b <BASE32_SECRET>
 
 and if the secret is a valid base32, it executes the decode and then performs the calculation.
 If you want to make a test you can generate an example test VECTOR obtained as the following:
@@ -40,18 +40,18 @@ If you want to make a test you can generate an example test VECTOR obtained as t
 * **provider**: this is the most interesting mode because you can define the list of your providers
 in a *providerrc* file and pass it to the binary:
 
-    `$ c_otp -f providerrc -s`
+    $ c_otp -f providerrc -s
 
 The -s flag inspiration is taken from the *slstatus suckless* project and it is used to print on the 
 **STDOUT** the array containing all the defined providers.
 
 Inside the project is provided a *providerrc.sample*:
 
-    \#provider:secret ###THIS IS A COMMENT: it will be ignored ..
+    #provider:secret ###THIS IS A COMMENT: it will be ignored ..
     protonmail:ORSXG5A=
     amazon:MVUGY3Y=
     google:ORSXG5A=
-    \#trello:ORSKGGGH5A=
+    #trello:ORSKGGGH5A=
 
 
 TODO LIST
