@@ -22,6 +22,7 @@
 #define DIGITS 6
 #define VALIDITY 30
 #define TIME 2
+#define VERSION 1.0
 
 extern NODE *provider_list = NULL;
 
@@ -49,9 +50,31 @@ uint32_t accumulate(PROVIDER *cur_provider) {
     keylen = decode_b32key(&k, len);
     otp = totp(k, keylen);
     memcpy(cur_provider->psecret, sec, strlen(sec));
-    printf("The resulting OTP value is: %06u\n", otp);
     return otp;
 }
+
+
+void update_providers(int time) {
+
+    NODE *cur = provider_list;
+    NODE *head = provider_list;
+    uint32_t result;
+
+    while(1) {
+        while(cur != NULL) {
+            result = accumulate(cur->p);
+            //((int)result == -1) ? ((cur->p)->otpvalue = 0) : ((cur->p)->otpvalue = result);
+            update_value(&provider_list, (cur->p)->pname, result);
+            print(provider_list);
+            sleep(TIME);
+            cur = cur->next;
+        }
+        print(provider_list);
+        cur = head;
+        sleep(TIME);
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -64,12 +87,12 @@ int main(int argc, char *argv[])
     int opt;
     uint32_t result;
 
-    if(argc <= 2) {
+    if(argc <= 1) {
         fprintf(stderr, "Provide at least one argument\n");
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:v")) != -1 ) {
+    while((opt = getopt(argc, argv, "b:f:vs")) != -1 ) {
         switch(opt) {
             case 'b':
                 k = (uint8_t *)optarg;
@@ -79,34 +102,20 @@ int main(int argc, char *argv[])
                     return -1;
                 }
                 keylen = decode_b32key(&k, len);
-                totp(k, keylen);
+                result = totp(k, keylen);
+                printf("The resulting OTP value is: %06u\n", result);
             case 'f':
                 fname = optarg;
                 load_providers(fname);
                 break;
+            case 's':
+                update_providers(TIME);
             case 'v':
+                printf("%s %.1f", argv[0], VERSION);
                 break;
             default:
-                fprintf(stderr, "Usage %s [-f fname] | [-b b32_secretkey] \n", argv[0]);
+                fprintf(stderr, "Usage %s [-f fname] | [-b b32_secretkey] [-v]\n", argv[0]);
                 return -1;
         }
-    }
-    NODE *cur = provider_list;
-    NODE *head = provider_list;
-
-    while(1) {
-        while(cur != NULL) {
-            result = accumulate(cur->p);
-            printf("The resulting OTP value is: %06u\n", result);
-            //((int)result == -1) ? ((cur->p)->otpvalue = 0) : ((cur->p)->otpvalue = result);
-            //(cur->p)->otpvalue = *result;
-            update_value(&provider_list, (cur->p)->pname, result);
-            print(provider_list);
-            sleep(TIME);
-            cur = cur->next;
-        }
-        print(provider_list);
-        cur = head;
-        sleep(5);
     }
 }
