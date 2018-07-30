@@ -4,7 +4,7 @@
 pkgname=('c_otp')
 _pkgname="c_otp"
 packager="fmount"
-pkgver="1.0"
+pkgver=v1.0
 pkgrel=1
 bindir=usr/bin
 pkgdesc="HOTP / TOTP pure C implementation"
@@ -15,10 +15,10 @@ depends=('openssl')
 source=("git://github.com/fmount/${pkgname}.git")
 md5sums=('SKIP')
 
-#pkgver() {
-#    cd $_pkgname
-#    #git describe --tags |sed 's/-/./g'
-#}
+pkgver() {
+    cd $_pkgname
+    git describe --tags | sed 's/-/./g'
+}
 
 prepare() {
     cd "$_pkgname" || exit -1
@@ -32,9 +32,9 @@ build() {
 }
 
 package() {
-  cd "${srcdir}"/$_pkgname/bin || exit -1
-  echo "Copy ${srcdir}/$_pkgname/bin/c_otp usr/bin/"
+  cd "${srcdir}"/$_pkgname/$bindir || exit -1
+  echo "Copy ${srcdir}/$_pkgname/$bindir/$_pkgname $bindir"
   #make PREFIX="$pkgdir"/usr DESTDIR="$pkgdir" install
-  install -Dm755 ${srcdir}/$_pkgname/bin/$_pkgname "$pkgdir/$bindir/$_pkgname"
+  install -Dm755 ${srcdir}/$_pkgname/$bindir/$_pkgname "$pkgdir/$bindir/$_pkgname"
   install -m644 -D ${srcdir}/$_pkgname/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
