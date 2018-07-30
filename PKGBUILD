@@ -16,7 +16,7 @@ source=("git://github.com/fmount/${pkgname}.git")
 md5sums=('SKIP')
 
 pkgver() {
-    cd $_pkgname
+    cd $_pkgname || exit -1
     git describe --tags | sed 's/-/./g'
 }
 
