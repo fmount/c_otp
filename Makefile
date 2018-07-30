@@ -1,4 +1,4 @@
-BIN=bin
+PREFIX=usr/bin
 D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
@@ -34,38 +34,38 @@ endif
 
 all: clean build $(OBJECTS) $(OBJECTS_LB)
 	@echo Building the c_otp package
-	$(CC) -o $(BIN)/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(WARNFLAGS)
+	$(CC) -o ${PREFIX}/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(WARNFLAGS)
 
 
 clean:
 	@echo Removing build directories
-	rm -rf $(BIN)
+	rm -rf ${PREFIX}
 	find . -name "*.o" -exec rm {} \;
 
 
 install:
 	@echo Installing the c_otp package on the system
-	cp $(BIN)/c_otp $(TARGET)
+	cp ${PREFIX}/c_otp ${TARGET}
 
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(DEBUG) $(INCLUDE)
+	$(CC) -o $@ -c $< $(DEBUG) $(INCLUDE) $(WARNFLAGS)
 
 
 $OBJECTS: $(SRC)
-	$(CC) -c $(SRC) $(LDLIBS) $(INCLUDE) $(DEBUG)
+	$(CC) -c $(SRC) $(LDLIBS) $(INCLUDE) $(DEBUG) $(WARNFLAGS)
 
 
 $OBJECTS_LB: $(OBJECTS_LB)
-	$(CC) -c $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(DEBUG)
+	$(CC) -c $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(DEBUG) $(WARNFLAGS)
 
 
 build:
-	@mkdir -p bin
+	@mkdir -p ${PREFIX}
 
 
 executable:
-	$(CC) $(SRC) -o $(BIN)/c_otp $(LDLIBS) $(INCLUDE) $(DEBUG)
+	$(CC) $(SRC) -o $(PREFIX)/c_otp $(LDLIBS) $(INCLUDE) $(DEBUG)
 
 
 .PHONY: install
