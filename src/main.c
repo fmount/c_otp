@@ -65,8 +65,8 @@ void update_providers(int time) {
             result = accumulate(cur->p);
             //((int)result == -1) ? ((cur->p)->otpvalue = 0) : ((cur->p)->otpvalue = result);
             update_value(&provider_list, (cur->p)->pname, result);
-            print(provider_list);
-            sleep(TIME);
+            //print(provider_list);
+            //sleep(TIME);
             cur = cur->next;
         }
         print(provider_list);
