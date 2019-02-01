@@ -68,12 +68,22 @@ print_key_info(gpgme_key_t key)
 void
 select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key)
 {
-  gpgme_get_key(ctx, fingerprint, key, 0);
+  gpgme_error_t err;
+  err = gpgme_get_key(ctx, fingerprint, key, 0);
+
+  if(err) {
+      fprintf(stderr, "Error selecting key\n");
+      #ifdef DEBUG
+      fprintf(stderr, "%s\n", err);
+      #endif
+      exit(-1);
+  }
 
   #ifdef DEBUG
   fprintf(stdout, "SELECTED KEY:\n");
-  fprintf(stdout, "  ->email : %s\n", (*key)->uids->email);
-  fprintf(stdout, "  ->encrypt : %d\n", (*key)->can_encrypt);
+  fprintf(stdout, "  ->email: %s\n", (*key)->uids->email);
+  fprintf(stdout, "  ->encrypt: %d\n", (*key)->can_encrypt);
+  fprintf(stdout, "  ->main fingerprint: %s\n", (*key)->fpr);
   #endif
 }
 
@@ -132,6 +142,7 @@ int encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
 
   write_file(fout, buf, buflen);
 
+  // Useful to see if the format is the expected one
   #ifdef DEBUG
   char *cipher_text = NULL;
   cipher_text = read_file(fout);
