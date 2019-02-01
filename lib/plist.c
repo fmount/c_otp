@@ -1,7 +1,7 @@
 /*
  *
  *  TOTP: Time-Based One-Time Password Algorithm
- *  Copyright (c) 2017, fmount <fmount9@autistici.org>
+ *  Copyright (c) 2017, fmount <fmount@inventati.org>
  *
  *  This software is distributed under MIT License
  *
