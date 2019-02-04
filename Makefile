@@ -1,5 +1,5 @@
 PREFIX=usr/bin
-D=0
+D=1
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)
@@ -11,7 +11,7 @@ CC=gcc
 CFLAGS=-Wall
 DEBUG=
 WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
-LDLIBS+=-lm -lcrypto
+LDLIBS+=-lm -lcrypto -lgpgme
 INCLUDE=-I lib
 OBJECTS=$(patsubst %.c, %.o, $(SRC))
 OBJECTS_LB=$(patsubst %.c, %.o, $(LIBS))

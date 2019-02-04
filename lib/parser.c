@@ -19,60 +19,10 @@
 #include<string.h>
 #include<unistd.h>
 
-#include "plist.h"
 #include "parser.h"
+#include "utils.h"
+#include "gpgmelib.h"
 
-
-PROVIDER *split_str(char *spl, char delim)
-{
-    char *tmp_name;
-    char *tmp_secret;
-    PROVIDER *p;
-    size_t count = 0;
-
-    //Get break point
-    do {
-        count++;
-    } while (spl[count] != delim);
-
-
-    tmp_name = (char *) malloc(count * sizeof(char));
-    tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
-
-    /*
-     * Get first part of the string
-     */
-    memcpy(tmp_name, spl, count);
-    /*
-     * Get second part of the string
-     */
-    memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
-
-#ifdef DEBUG
-
-    printf("[GOT LEN]: %ld\n", strlen(spl));
-    printf("[PROVIDER SECTION]: %ld characters\n", count);
-    printf("[GOT NAME]: %s\n", tmp_name);
-    printf("[SECRET SECTION]: %ld\n", (strlen(spl)-count+1));
-    printf("[GOT SECRET]: %s\n", tmp_secret);
-
-#endif
-
-    p = malloc(sizeof(PROVIDER));
-    p->pname = tmp_name;
-    p->psecret = tmp_secret;
-    p->otpvalue = NULL;
-    return p;
-}
-
-PROVIDER *process_provider(NODE **plist, char *line)
-{
-    PROVIDER *p;
-    p = split_str(line, ':');
-    push(plist, p->pname, p->psecret, p->otpvalue);
-    /* printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret); */
-    return p;
-}
 
 void load_providers(char *fname)
 {
@@ -98,6 +48,63 @@ void load_providers(char *fname)
     print(provider_list);
 
     #endif
+}
+
+void load_encrypted_providers(char *fin, char *fingerprint)
+{
+  gpgme_ctx_t ctx;
+  gpgme_error_t err;
+  gpgme_data_t in, out;
+  gpgme_key_t key[2] = { NULL, NULL };
+  gpgme_encrypt_flags_t flags = GPGME_ENCRYPT_ALWAYS_TRUST;
+
+  init_context();
+
+  err = gpgme_new(&ctx);
+  gpgme_set_armor(ctx, 1);
+  gpgme_set_protocol(ctx, PROTOCOL);
+
+  if (err)
+    exit_with_err(err);
+
+  //First step is to select the key ..
+  select_key(ctx, fingerprint, &key[0]);
+  gpgme_data_t dh = decrypt(fin, ctx, in, out);
+
+  #ifdef DEBUG
+  print_gpgme_data(dh);
+  #endif
+
+  gpgme_data_seek(dh, 0, SEEK_SET);
+  char *buf = (char*)malloc(BUFSIZE*sizeof(char));
+
+  while(gpgme_data_read(dh, buf, BUFSIZE) > 0) {
+      process_block(buf);
+
+      /***
+       * What's the problem here:
+       * 1. Block is a list of lines
+       * 2. I need to process line by line in this way:
+       *
+       * if (line[0] != '#')
+       *    process_provider(&provider_list, line);
+       * 
+       * So  |BLOCK| => | l1 | => while(lines) {
+       *                | l2 |      process_provider(..)
+       *                | l3 |    }
+       *
+       * ===> Move the implementation in the utils.h to
+       *      avoid the coupling between the parser and
+       *      the string manipulation
+       */
+  }
+
+  /* Release all the resources */
+  gpgme_data_release(in);
+  gpgme_data_release(dh);
+  gpgme_release (ctx);
+  free(buf);
+
 }
 
 /*int main(int argc, char **argv)

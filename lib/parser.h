@@ -23,6 +23,5 @@
 //static NODE *provider_list = NULL;
 extern NODE *provider_list;
 
-PROVIDER *split_str(char *spl, char delim);
-PROVIDER *process_provider(NODE **plist, char *line);
 void load_providers(char *fname);
+void load_encrypted_providers(char *fname, char *fingerprint);

@@ -16,6 +16,7 @@
 #include "rfc4226.h"
 #include "rfc6238.h"
 #include "utils.h"
+
 #include "parser.h"
 
 #define T0 0
@@ -105,8 +106,16 @@ int main(int argc, char *argv[])
                 result = totp(k, keylen);
                 printf("The resulting OTP value is: %06u\n", result);
             case 'f':
+                /*
+                * (TODO): Add options and MODE to distinguish
+                *         between plaintext and ciphertext
+                *         (important): make all new implementation
+                *         backward compatible.
+                */
                 fname = optarg;
-                load_providers(fname);
+                load_encrypted_providers(fname, "0458D4D1F41BD75C");
+                //load_providers(fname);
+                return -2;
                 break;
             case 's':
                 update_providers(TIME);
@@ -119,3 +128,11 @@ int main(int argc, char *argv[])
         }
     }
 }
+
+/**
+ *  CMD LINE REDESIGN:
+ *
+ *  ./c_otp -f <file> --plain
+ *  ./c_otp -f <file> --gpg
+ *
+ */

@@ -12,12 +12,12 @@
  *
  */
 
-
-
 #include<locale.h>
 #include<errno.h>
+#include<string.h>
 
 #include "gpgmelib.h"
+#include "utils.h"
 
 
 void
@@ -39,7 +39,6 @@ void init_context(void)
 
   err = gpgme_engine_check_version(protocol);
 
-  //We will see if it is wrapped properly ..
   if (err)
     exit_with_err(err);
 }
@@ -96,7 +95,7 @@ write_file(char *fout, char *cipher_text, size_t bflen) {
 }
 
 char *
-read_file(char *fin)
+read_block(char *fin)
 {
     FILE *f;
 
@@ -145,13 +144,59 @@ int encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
   // Useful to see if the format is the expected one
   #ifdef DEBUG
   char *cipher_text = NULL;
-  cipher_text = read_file(fout);
+  cipher_text = read_block(fout);
   fprintf(stdout, "%s\n", cipher_text);
   #endif
 
   return 0;
 }
 
+void
+process_block(char *block)
+{
+    #ifdef DEBUG
+    fprintf(stdout, "[NEW BLOCK RECEIVED]\n%s\n", block);
+    fprintf(stdout, "[BLOCK LEN] %lu\n", strlen(block));
+    #endif
+    int bsize = strlen(block);
+    char *line;
+    size_t i = 0; /* Useful to scan a row of the block (line scan) */
+    int cursor = 0; /* The global cursor to move on the block lines */
+
+    while(bsize > 0) {
+        //fprintf(stdout, "[EXECUTION] BSIZE: %d\n", bsize);
+        do {
+            //fprintf(stdout, "%c", block[(cursor+i)]);
+            i++;
+        }
+        while(block[(cursor + i)] != '\n');
+
+        line = (char*) malloc(i*sizeof(char) + 1);
+        memcpy(line, (block + cursor), i * sizeof(char) + 1);
+        line[i + 1] = '\0';
+
+        if (line[0] != '#')
+            process_provider(&provider_list, line);
+
+        cursor += i;
+        #ifdef DEBUG
+        fprintf(stdout, "\nPROVIDER: %s\n", line);
+        fprintf(stdout, "cursor: %d\n", cursor);
+        fprintf(stdout, "i: %zu\n", i);
+        #endif
+        /* The +1 offset is necessary to include the newline char */
+        bsize -= (i+1);
+        //fprintf(stdout, "bsize: %d\n", bsize);
+        i = 0;
+        line = NULL;
+        /* Avoid the newline char at the start of the next line 
+         * So the idea is to start the cursor with +1 offset to
+         * avoid the newline char coming from the previous line
+         * */
+        cursor++;
+    }
+    free(line);
+}
 
 void
 print_gpgme_data(gpgme_data_t data)
@@ -160,17 +205,16 @@ print_gpgme_data(gpgme_data_t data)
 
     gpgme_data_seek (data, 0, SEEK_SET);
     while(gpgme_data_read(data, buf, BUFSIZE) > 0) {
-        fprintf(stdout, "TEXT:\n%s\n", buf);
+        fprintf(stdout, "%s\n", buf);
     }
 }
 
-char*
+gpgme_data_t
 decrypt(char *fout, gpgme_ctx_t ctx, \
         gpgme_data_t in, gpgme_data_t out)
 {
 
   gpgme_error_t err;
-  char *buf = (char*) malloc(sizeof(char));
   err = gpgme_data_new_from_file (&in, fout, 1);
 
   if (err)
@@ -179,10 +223,11 @@ decrypt(char *fout, gpgme_ctx_t ctx, \
   gpgme_data_new (&out);
   gpgme_op_decrypt (ctx, in, out);
 
-  //TODO: Processing out data to transform it into buf
+  #ifdef DEBUG
   print_gpgme_data(out);
+  #endif
 
-  return buf;
+  return out;
 
 }
 
