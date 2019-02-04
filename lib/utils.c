@@ -14,6 +14,56 @@
 
 #include "utils.h"
 
+PROVIDER *split_str(char *spl, char delim)
+{
+    char *tmp_name;
+    char *tmp_secret;
+    PROVIDER *p;
+    size_t count = 0;
+
+    //Get break point
+    do {
+        count++;
+    } while (spl[count] != delim);
+
+
+    tmp_name = (char *) malloc(count * sizeof(char));
+    tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
+
+    /*
+     * Get first part of the string
+     */
+    memcpy(tmp_name, spl, count);
+    /*
+     * Get second part of the string
+     */
+    memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
+
+#ifdef DEBUG
+
+    printf("[GOT LEN]: %ld\n", strlen(spl));
+    printf("[PROVIDER SECTION]: %ld characters\n", count);
+    printf("[GOT NAME]: %s\n", tmp_name);
+    printf("[SECRET SECTION]: %ld\n", (strlen(spl)-count+1));
+    printf("[GOT SECRET]: %s\n", tmp_secret);
+
+#endif
+
+    p = malloc(sizeof(PROVIDER));
+    p->pname = tmp_name;
+    p->psecret = tmp_secret;
+    p->otpvalue = NULL;
+    return p;
+}
+
+
+PROVIDER *process_provider(NODE **plist, char *line)
+{
+    PROVIDER *p;
+    p = split_str(line, ':');
+    push(plist, p->pname, p->psecret, p->otpvalue);
+    return p;
+}
 
 static const int8_t base32_vals[256] = {
     //    This map cheats and interprets:

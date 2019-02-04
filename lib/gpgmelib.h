@@ -20,8 +20,13 @@
 #include<stdlib.h>
 #include<gpgme.h>
 
+#include "plist.h"
+
 #define BUFSIZE 1024
 #define MAXLEN 2048
+#define PROTOCOL GPGME_PROTOCOL_OpenPGP
+
+extern NODE *provider_list;
 
 void init_context(void);
 void exit_with_err(gpgme_error_t err);
@@ -30,10 +35,11 @@ void select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key);
 void print_key_info(gpgme_key_t key);
 int encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
      gpgme_data_t in, gpgme_data_t out, gpgme_encrypt_flags_t flags);
-char *decrypt(char *fin, gpgme_ctx_t ctx, \
+gpgme_data_t decrypt(char *fin, gpgme_ctx_t ctx, \
         gpgme_data_t in, gpgme_data_t out);
 void write_file(char *fout, char *cipher_text, size_t bflen);
-char *read_file(char *fin);
+char *read_block(char *fin);
 void print_gpgme_data(gpgme_data_t data);
+void process_block(char *cur);
 
 #endif
