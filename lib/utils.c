@@ -180,3 +180,11 @@ decode_b32key(uint8_t **k, size_t len)
 
     return keylen;
 }
+
+int
+file_exists(const char *fp) {
+/* checks if the file exists */
+    struct stat sb;
+    if(stat(fp, &sb) == 0 && S_ISREG(sb.st_mode)) return 0;
+    return 1;
+}

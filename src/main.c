@@ -13,6 +13,7 @@
  *  $ echo -n "1234" | openssl dgst -sha1 -hmac "test"
  */
 #include <time.h>
+#include <string.h>
 #include "rfc4226.h"
 #include "rfc6238.h"
 #include "utils.h"
@@ -85,7 +86,10 @@ int main(int argc, char *argv[])
     size_t keylen;
     uint8_t *k;
     char *fname = NULL;
+    char *fingerprint = NULL;
+    char *mode = NULL;
     int opt;
+    int update = 0;
     uint32_t result;
 
     if(argc <= 1) {
@@ -93,9 +97,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:vs")) != -1 ) {
+    while((opt = getopt(argc, argv, "b:f:m:vs")) != -1 ) {
         switch(opt) {
             case 'b':
+                /**
+                 * ONE SHOT MODE: pass the b32, run the algorithm and 
+                 *                return the result!
+                 */
                 k = (uint8_t *)optarg;
                 len = strlen(optarg);
                 if (validate_b32key(optarg, len, pos) == 1) {
@@ -104,35 +112,58 @@ int main(int argc, char *argv[])
                 }
                 keylen = decode_b32key(&k, len);
                 result = totp(k, keylen);
-                printf("The resulting OTP value is: %06u\n", result);
+                fprintf(stdout, "The resulting OTP value is: %06u\n", result);
+                return 0;
             case 'f':
-                /*
-                * (TODO): Add options and MODE to distinguish
-                *         between plaintext and ciphertext
-                *         (important): make all new implementation
-                *         backward compatible.
-                */
                 fname = optarg;
-                load_encrypted_providers(fname, "0458D4D1F41BD75C");
-                //load_providers(fname);
-                return -2;
+                if (file_exists(fname) != 0) {
+                    fprintf(stderr, "%s: the provided file doesn't exists", fname);
+                    return -1;
+                }
+                break;
+            case 'm':
+                mode = optarg;
                 break;
             case 's':
-                update_providers(TIME);
+                /* A try to make it available in a desktop environment:
+                 * the idea is to set a TIME and display the new value 
+                 * according to the TIME set (useful if running DE with
+                 * i3status / i3block / slstatus on DWM)
+                 */
+                update = 1;
+                //TODO: update_providers(TIME);
             case 'v':
                 printf("%s %.1f", argv[0], VERSION);
+                return 0;
+            case 'z':
+                fingerprint = optarg;
                 break;
             default:
-                fprintf(stderr, "Usage %s [-f fname] | [-b b32_secretkey] [-v]\n", argv[0]);
+                fprintf(stderr, "Usage %s [-f fname] | [-b b32_secretkey] [-m mode] [-v]\n", argv[0]);
                 return -1;
         }
     }
+
+    if(mode != NULL && (strcmp(mode, "gpg") == 0)) {
+        /** Working in gpg mode, using gpgme provider **/
+        fprintf(stdout, "[Working in gpg mode]\n");
+        load_encrypted_providers(fname, "0458D4D1F41BD75C");
+       //load_encrypted_providers(fname, fingerprint);
+
+    } else {
+        fprintf(stdout, "[Working in plaintext mode]\n");
+        load_providers(fname);
+    }
+
+    update_providers(TIME);
 }
 
 /**
- *  CMD LINE REDESIGN:
- *
- *  ./c_otp -f <file> --plain
- *  ./c_otp -f <file> --gpg
+ *  CMD LINE DESIGN:
+ *  ----------------
+ *  c_otp -f <file>
+ *  c_otp -b <b32_sec>
+ *  c_otp -m gpg -f <file> [-s]
+ *  c_otp gen -f <plaintext_file> -z fingerprint
  *
  */

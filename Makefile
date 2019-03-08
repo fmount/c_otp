@@ -9,7 +9,7 @@ TNAME=c_otp
 # compiler
 CC=gcc
 CFLAGS=-Wall
-DEBUG=
+DEBUG=1
 WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
 LDLIBS+=-lm -lcrypto -lgpgme
 INCLUDE=-I lib
