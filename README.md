@@ -53,6 +53,35 @@ Inside the project is provided a *providerrc.sample*:
     google:ORSXG5A=
     #trello:ORSKGGGH5A=
 
+If the '-m gpg' option is defined the gpgme lib enables users to decrypt the providerrc passed as 
+parameter. (See before [How to encrypt your providerrc file](#encrypt-your-providerrc)).
+
+In this case you can simply run the classic commmand adding the gpg option:
+
+    $ c_opt -m gpg -f <providerrc>
+
+The application expects to find a valid *gpg-encrypted providerrc* file and try to decrypt it;
+if the decryption operation has worked as expected the normal flow is recovered and the providers are 
+loaded.
+
+
+ENCRYPT YOUR PROVIDERRC
+---
+
+This function allows to encrypt the providerrc file from the application.
+So assuming to have a plain providerrc like the following:
+
+
+    #provider:secret ###THIS IS A COMMENT: it will be ignored ..
+    protonmail:ORSXG5A=
+    amazon:MVUGY3Y=
+    google:ORSXG5A=
+    #trello:ORSKGGGH5A=
+
+you can generate the encrypted file with:
+
+    $ c_otp gen -i <providerrc> -z fingerprint
+
 
 TODO LIST
 ------

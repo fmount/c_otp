@@ -19,12 +19,13 @@
 #include<stdint.h>
 #include<stdlib.h>
 #include<string.h>
-
+#include<sys/stat.h>
 #include "plist.h"
 
 PROVIDER *split_str(char *spl, char delim);
 PROVIDER *process_provider(NODE **plist, char *line);
 int validate_b32key(char *k, size_t len, size_t pos);
+int file_exists(const char *fpath);
 size_t decode_b32key(uint8_t **k, size_t len);
 
 #endif
