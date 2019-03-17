@@ -2,3 +2,4 @@ a. Read rc file, parse it and create providers + Make them uniq!!!!
 b. encrypt / decrypt using gpg (IN PROGRESS)
 c. Make it multithread
 d. pass integration and x-clipboard
+e. Generate encrypted providerrc (./c_otp gen -f plain -o file)

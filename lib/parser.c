@@ -110,6 +110,12 @@ load_encrypted_providers(char *fin, char *fingerprint)
   gpgme_data_release(dh);
   gpgme_release (ctx);
   free(buf);
+
+  #ifdef DEBUG
+
+  print(provider_list);
+
+  #endif
 }
 
 /*int main(int argc, char **argv)
