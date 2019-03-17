@@ -1,5 +1,5 @@
 PREFIX=usr/bin
-D=1
+D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)
@@ -9,8 +9,9 @@ TNAME=c_otp
 # compiler
 CC=gcc
 CFLAGS=-Wall
-DEBUG=1
-WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
+DEBUG=
+#WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
+WARNFLAGS=-Wsign-compare -Wint-conversion
 LDLIBS+=-lm -lcrypto -lgpgme
 INCLUDE=-I lib
 OBJECTS=$(patsubst %.c, %.o, $(SRC))

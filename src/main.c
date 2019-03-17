@@ -30,28 +30,31 @@ extern NODE *provider_list = NULL;
 
 uint32_t totp(uint8_t *k, size_t keylen) {
     time_t t = floor((time(NULL) - T0) / VALIDITY);
-    return TOTP(k, keylen, t, DIGITS);
-}
+    return TOTP(k, keylen, t, DIGITS); }
 
 uint32_t accumulate(PROVIDER *cur_provider) {
 
+    /**
+     * STRATEGY: Use a tmp variable to make computation
+     * on the b32 sec of the current PROVIDER
+     */
     size_t pos, len, keylen;
     uint8_t *k;
     uint32_t otp;
-    char *sec = (char *)malloc(sizeof(char));
-
-    memcpy(sec,cur_provider->psecret, strlen(cur_provider->psecret));
-    k = (uint8_t *)cur_provider->psecret;
+    char *sec = (char *) malloc(strlen(cur_provider->psecret) * sizeof(char));
     len = strlen(cur_provider->psecret);
+    /* duplicate sec variable locally: using strndup to avoid pointing on 
+     * the same cell */
+    sec = strndup(cur_provider->psecret, len);
 
-    if (validate_b32key(cur_provider->psecret, len, pos) == 1) {
+    if (validate_b32key(sec, len, pos) == 1) {
         fprintf(stderr, "%s: invalid base32 secret\n", cur_provider->pname);
         return -1;
     }
 
+    k = (uint8_t *)sec;
     keylen = decode_b32key(&k, len);
     otp = totp(k, keylen);
-    memcpy(cur_provider->psecret, sec, strlen(sec));
     return otp;
 }
 
@@ -65,10 +68,11 @@ void update_providers(int time) {
     while(1) {
         while(cur != NULL) {
             result = accumulate(cur->p);
+
             //((int)result == -1) ? ((cur->p)->otpvalue = 0) : ((cur->p)->otpvalue = result);
+
             update_value(&provider_list, (cur->p)->pname, result);
-            //print(provider_list);
-            //sleep(TIME);
+
             cur = cur->next;
         }
         print(provider_list);

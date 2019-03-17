@@ -84,9 +84,9 @@ void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
     p->psecret = psecret;
     p->otpvalue = otpvalue;
     cur->p = p;
-
     cur->next = *head;
     *head = cur;
+    fprintf(stdout, "PUSHING: %s\n", p->pname);
 }
 
 NODE *pop(NODE **head) {

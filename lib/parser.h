@@ -21,7 +21,7 @@
 #include "plist.h"
 
 //static NODE *provider_list = NULL;
-extern NODE *provider_list;
+//extern NODE *provider_list;
 
 void load_providers(char *fname);
 void load_encrypted_providers(char *fname, char *fingerprint);
