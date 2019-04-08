@@ -34,6 +34,21 @@ void print(NODE *head) {
 }
 
 
+size_t size(NODE *head) {
+
+    size_t count = 0;
+    NODE *cur = NULL;
+    cur = head;
+
+    while(cur != NULL) {
+        count++;
+        cur = cur->next;
+    }
+
+    return count;
+}
+
+
 bool exists(NODE *head, NODE *target) {
     printf("Check if the target node exists in list\n");
 
@@ -47,6 +62,7 @@ bool exists(NODE *head, NODE *target) {
     return 0;
 
 }
+
 
 NODE *get_node(NODE *head, char *pname) {
 
@@ -86,7 +102,6 @@ void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
     cur->p = p;
     cur->next = *head;
     *head = cur;
-    fprintf(stdout, "PUSHING: %s\n", p->pname);
 }
 
 NODE *pop(NODE **head) {

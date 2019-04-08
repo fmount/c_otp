@@ -3,3 +3,8 @@ b. encrypt / decrypt using gpg (IN PROGRESS)
 c. Make it multithread
 d. pass integration and x-clipboard
 e. Generate encrypted providerrc (./c_otp gen -f plain -o file)
+
+Notes:
+----
+Segfault: parser.c#L40 => Validate line before processing it: it solves the case in witch you pass the wrong
+                          file with a plain/gpg mode
