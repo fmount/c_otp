@@ -30,7 +30,8 @@ extern NODE *provider_list = NULL;
 
 uint32_t totp(uint8_t *k, size_t keylen) {
     time_t t = floor((time(NULL) - T0) / VALIDITY);
-    return TOTP(k, keylen, t, DIGITS); }
+    return TOTP(k, keylen, t, DIGITS);
+}
 
 uint32_t accumulate(PROVIDER *cur_provider) {
 
@@ -59,13 +60,33 @@ uint32_t accumulate(PROVIDER *cur_provider) {
 }
 
 
-void update_providers(int time) {
+int update_providers(int time, int uc) {
 
     NODE *cur = provider_list;
     NODE *head = provider_list;
     uint32_t result;
 
-    while(1) {
+    if(cur == NULL) {
+        fprintf(stderr, "Provider list is empty\n");
+        return -1;
+    }
+
+    /**
+     * update value (uc) is 0, so we update values
+     * one shot
+     */
+    if(uc == 0) {
+        while(cur != NULL) {
+            result = accumulate(cur->p);
+            update_value(&provider_list, (cur->p)->pname, result);
+            cur = cur->next;
+        }
+        print(provider_list);
+        return 0;
+    }
+
+
+    while(uc) {
         while(cur != NULL) {
             result = accumulate(cur->p);
 
@@ -79,6 +100,8 @@ void update_providers(int time) {
         cur = head;
         sleep(TIME);
     }
+
+    return 0;
 }
 
 
@@ -88,12 +111,13 @@ int main(int argc, char *argv[])
     size_t pos;
     size_t len;
     size_t keylen;
+    size_t lp = 0;
     uint8_t *k;
     char *fname = NULL;
     char *fingerprint = NULL;
     char *mode = NULL;
     int opt;
-    int update = 0;
+    int update = 0; /* 0 => will execute one shot calc, 1 => update in loop */
     uint32_t result;
 
     if(argc <= 1) {
@@ -101,12 +125,12 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:m:vs")) != -1 ) {
+    while((opt = getopt(argc, argv, "b:f:m:z:vs")) != -1 ) {
         switch(opt) {
             case 'b':
                 /**
-                 * ONE SHOT MODE: pass the b32, run the algorithm and 
-                 *                return the result!
+                 * ONE SHOT MODE: pass the b32, run the algorithm and
+                 * return the result!
                  */
                 k = (uint8_t *)optarg;
                 len = strlen(optarg);
@@ -135,7 +159,7 @@ int main(int argc, char *argv[])
                  * i3status / i3block / slstatus on DWM)
                  */
                 update = 1;
-                //TODO: update_providers(TIME);
+                break;
             case 'v':
                 printf("%s %.1f", argv[0], VERSION);
                 return 0;
@@ -151,15 +175,14 @@ int main(int argc, char *argv[])
     if(mode != NULL && (strcmp(mode, "gpg") == 0)) {
         /** Working in gpg mode, using gpgme provider **/
         fprintf(stdout, "[Working in gpg mode]\n");
-        load_encrypted_providers(fname, "0458D4D1F41BD75C");
-       //load_encrypted_providers(fname, fingerprint);
+        lp = load_encrypted_providers(fname, fingerprint);
 
     } else {
         fprintf(stdout, "[Working in plaintext mode]\n");
-        load_providers(fname);
+        lp = load_providers(fname);
     }
 
-    update_providers(TIME);
+    update_providers(TIME, update);
 }
 
 /**
@@ -167,7 +190,16 @@ int main(int argc, char *argv[])
  *  ----------------
  *  c_otp -f <file>
  *  c_otp -b <b32_sec>
- *  c_otp -m gpg -f <file> [-s]
+ *  c_otp -m gpg -f <file>  -z fingerprint [-s]
  *  c_otp gen -f <plaintext_file> -z fingerprint
+ * 
+ *  TEST
+ *  ---
+ *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C
+ *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C -s
  *
+ *  WRONG CASE
+ *  ---
+ *  ./c_otp -f providerrc.sample -m gpg -z 0458D4D1F41BD75C (PLAIN TEXT FILE)
+ *  ./c_otp -f providerrc.sample.gpg  (ENC PROVIDER LIST IN PLAINTEXT MODE)
  */

@@ -35,6 +35,7 @@ typedef struct Node {
 
 
 void print(NODE *head);
+size_t size(NODE *head);
 int update_value(NODE **head, char *pname, uint32_t optvalue);
 void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue);
 void del(char *del, NODE *head);

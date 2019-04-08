@@ -24,8 +24,7 @@
 #include "gpgmelib.h"
 
 
-void 
-load_providers(char *fname)
+size_t load_providers(char *fname)
 {
 
     FILE *f;
@@ -38,6 +37,7 @@ load_providers(char *fname)
         exit(ENOENT);
     char *line = NULL;
     while (getline(&line, &len, f) != -1) {
+        /** TODO: VALIDATE LINE BEFORE PROCESSING IT **/
         if (line[0] != '#')
             process_provider(&provider_list, line);
     }
@@ -49,20 +49,22 @@ load_providers(char *fname)
     print(provider_list);
 
     #endif
+
+    return size(provider_list);
+
 }
 
-void
-load_encrypted_providers(char *fin, char *fingerprint)
+size_t load_encrypted_providers(char *fin, char *fingerprint)
 {
   if(fingerprint == NULL) {
       fprintf(stderr, "[GPGME] Fingerprint error!\n");
-      return;
+      return -1;
   }
   gpgme_ctx_t ctx;
   gpgme_error_t err;
   gpgme_data_t in, out;
   gpgme_key_t key[2] = { NULL, NULL };
-  gpgme_encrypt_flags_t flags = GPGME_ENCRYPT_ALWAYS_TRUST;
+  //gpgme_encrypt_flags_t flags = GPGME_ENCRYPT_ALWAYS_TRUST;
 
   init_context();
 
@@ -116,6 +118,8 @@ load_encrypted_providers(char *fin, char *fingerprint)
   print(provider_list);
 
   #endif
+
+  return size(provider_list);
 }
 
 /*int main(int argc, char **argv)
