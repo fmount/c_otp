@@ -188,3 +188,36 @@ file_exists(const char *fp) {
     if(stat(fp, &sb) == 0 && S_ISREG(sb.st_mode)) return 0;
     return 1;
 }
+
+char *read_file(char *fname)
+{
+    FILE *f;
+    size_t len = 1024;
+    if (fname == NULL)
+        exit(ENOENT);
+    f = fopen(fname, "r");
+    if (f == NULL)
+        exit(ENOENT);
+    //Get the lenght of the file
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+
+    //Rewind at the start of the file (rewind(f))
+    fseek(f, 0, SEEK_SET);
+    char *buf = (char*) malloc(fsize +1);
+
+    fread(buf, fsize, 1, f);
+
+    fclose(f);
+
+    return buf;
+
+}
+
+void write_enc_file(char *fout, char *cipher_text, size_t bflen) 
+{
+    FILE *f;
+    f = fopen(fout, "w");
+    fwrite(cipher_text, sizeof(char), bflen, f);
+    fclose(f);
+}
