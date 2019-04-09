@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
     char *mode = NULL;
     int opt;
     int update = 0; /* 0 => will execute one shot calc, 1 => update in loop */
+    int gen = 0;
     uint32_t result;
 
     if(argc <= 1) {
@@ -148,6 +149,11 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "%s: the provided file doesn't exists", fname);
                     return -1;
                 }
+                break;
+            case 'g':
+                fprintf(stdout, "[GEN] Generates encrypted providerrc\n");
+                char *f = "providerrc.sample";
+
                 break;
             case 'm':
                 mode = optarg;
