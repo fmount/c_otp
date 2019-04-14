@@ -106,6 +106,13 @@ update_providers(int uc) {
     return 0;
 }
 
+static void
+usage(char **argv)
+{
+    fprintf(stdout, "usage: %s [-f fname] [-m mode] [-z fingerprint] \n\
+        %s [-b b32_secretkey] | [-v] | [-g fname] [-z fingerprint]\n", argv[0], argv[0]);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -129,7 +136,7 @@ main(int argc, char *argv[])
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:m:g:z:vs")) != -1 ) {
+    while((opt = getopt(argc, argv, "b:f:m:g:z:vsh")) != -1 ) {
         switch(opt) {
             case 'b':
                 /**
@@ -161,6 +168,9 @@ main(int argc, char *argv[])
                     return -1;
                 }
                 break;
+            case 'h':
+                usage(argv);
+                return 0;
             case 'm':
                 mode = optarg;
                 break;
@@ -179,7 +189,7 @@ main(int argc, char *argv[])
                 fingerprint = optarg;
                 break;
             default:
-                fprintf(stderr, "Usage %s [-f fname] | [-b b32_secretkey] [-m mode] [-v]\n", argv[0]);
+                usage(argv);
                 return -1;
         }
     }
@@ -192,7 +202,7 @@ main(int argc, char *argv[])
 
     if(mode != NULL && (strcmp(mode, "gpg") == 0)) {
         /** Working in gpg mode, using gpgme provider **/
-        lp = load_encrypted_providers(fname, fingerprint);
+        lp = load_encrypted_providers(fname);
 
     } else {
         lp = load_providers(fname);
@@ -215,7 +225,7 @@ main(int argc, char *argv[])
  *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C -s
  *  ./c_otp -g providerrc.sample -z 0458D4D1F41BD75C
  *
- *  WRONG CASE
+ *  TEST CASE(s) [TODO]
  *  ---
  *  ./c_otp -f providerrc.sample -m gpg -z 0458D4D1F41BD75C (PLAIN TEXT FILE)
  *  ./c_otp -f providerrc.sample.gpg  (ENC PROVIDER LIST IN PLAINTEXT MODE)

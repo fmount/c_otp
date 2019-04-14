@@ -56,12 +56,8 @@ load_providers(char *fname)
 }
 
 size_t
-load_encrypted_providers(char *fin, char *fingerprint)
+load_encrypted_providers(char *fin)
 {
-  if(fingerprint == NULL) {
-      fprintf(stderr, "[GPGME] Fingerprint error!\n");
-      return -1;
-  }
   gpgme_ctx_t ctx;
   gpgme_error_t err;
   gpgme_data_t in, out;
@@ -166,6 +162,7 @@ generate_encrypted_providers(char *fin, char *fingerprint) {
 
   char *fout = (char *) malloc(strlen(fin) * sizeof(char) + 1);
   strncpy(fout, fin, strlen(fin));
+  //strcat(fout, ".gpg");
   strncat(fout, ".gpg", 4);
 
   int result = encrypt(fout, ctx, key, in, out, flags);
