@@ -18,7 +18,9 @@
 
 #include "plist.h"
 
-void print(NODE *head) {
+void
+print(NODE *head)
+{
 
     NODE *cur = NULL;
     cur = head;
@@ -33,8 +35,9 @@ void print(NODE *head) {
 
 }
 
-
-size_t size(NODE *head) {
+size_t
+size(NODE *head)
+{
 
     size_t count = 0;
     NODE *cur = NULL;
@@ -48,8 +51,9 @@ size_t size(NODE *head) {
     return count;
 }
 
-
-bool exists(NODE *head, NODE *target) {
+bool
+exists(NODE *head, NODE *target)
+{
     printf("Check if the target node exists in list\n");
 
     NODE *cur = NULL;
@@ -63,8 +67,9 @@ bool exists(NODE *head, NODE *target) {
 
 }
 
-
-NODE *get_node(NODE *head, char *pname) {
+NODE *
+get_node(NODE *head, char *pname)
+{
 
     NODE *cur = NULL;
     cur = head;
@@ -77,7 +82,9 @@ NODE *get_node(NODE *head, char *pname) {
     return NULL;
 }
 
-int update_value(NODE **head, char *pname, uint32_t optvalue) {
+int
+update_value(NODE **head, char *pname, uint32_t optvalue)
+{
     NODE *cur;
     cur = *head;
     uint32_t *x = &optvalue;
@@ -91,7 +98,9 @@ int update_value(NODE **head, char *pname, uint32_t optvalue) {
     return -1;
 }
 
-void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
+void
+push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue)
+{
 
     NODE *cur = (NODE*) malloc(sizeof(NODE));
 
@@ -104,14 +113,18 @@ void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
     *head = cur;
 }
 
-NODE *pop(NODE **head) {
+NODE *
+pop(NODE **head)
+{
 
     NODE *tmp = *head;
     *head = (*head)->next;
     return tmp;
 }
 
-void del(char *del, NODE *head) {
+void
+del(char *del, NODE *head)
+{
 
     if(head == NULL) {
         fprintf(stderr, "No valid list, no head found\n");
@@ -137,7 +150,9 @@ void del(char *del, NODE *head) {
 }
 
 /** TESTING MAIN 
-int main() {
+int
+main()
+{
 
     //NODE *head = (NODE*) malloc(sizeof(NODE));
     NODE *head = NULL;

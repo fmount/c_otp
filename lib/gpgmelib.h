@@ -31,7 +31,7 @@ extern NODE *provider_list;
 void init_context(void);
 void exit_with_err(gpgme_error_t err);
 void print_keylist(gpgme_ctx_t ctx, gpgme_key_t key);
-void select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key);
+int select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key);
 void print_key_info(gpgme_key_t key);
 int encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
      gpgme_data_t in, gpgme_data_t out, gpgme_encrypt_flags_t flags);

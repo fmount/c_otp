@@ -28,12 +28,14 @@
 
 extern NODE *provider_list = NULL;
 
-uint32_t totp(uint8_t *k, size_t keylen) {
+uint32_t
+totp(uint8_t *k, size_t keylen) {
     time_t t = floor((time(NULL) - T0) / VALIDITY);
     return TOTP(k, keylen, t, DIGITS);
 }
 
-uint32_t accumulate(PROVIDER *cur_provider) {
+uint32_t
+accumulate(PROVIDER *cur_provider) {
 
     /**
      * STRATEGY: Use a tmp variable to make computation
@@ -59,8 +61,8 @@ uint32_t accumulate(PROVIDER *cur_provider) {
     return otp;
 }
 
-
-int update_providers(int time, int uc) {
+int
+update_providers(int uc) {
 
     NODE *cur = provider_list;
     NODE *head = provider_list;
@@ -104,8 +106,8 @@ int update_providers(int time, int uc) {
     return 0;
 }
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 
     size_t pos;
@@ -117,16 +119,17 @@ int main(int argc, char *argv[])
     char *fingerprint = NULL;
     char *mode = NULL;
     int opt;
+    int gen = 0; /* value defined to create an encrypted providerrc */
     int update = 0; /* 0 => will execute one shot calc, 1 => update in loop */
-    int gen = 0;
     uint32_t result;
+
 
     if(argc <= 1) {
         fprintf(stderr, "Provide at least one argument\n");
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:m:z:vs")) != -1 ) {
+    while((opt = getopt(argc, argv, "b:f:m:g:z:vs")) != -1 ) {
         switch(opt) {
             case 'b':
                 /**
@@ -151,15 +154,18 @@ int main(int argc, char *argv[])
                 }
                 break;
             case 'g':
-                fprintf(stdout, "[GEN] Generates encrypted providerrc\n");
-                char *f = "providerrc.sample";
-
+                fname = optarg;
+                gen = 1;
+                if (file_exists(fname) != 0) {
+                    fprintf(stderr, "%s: the provided file doesn't exists", fname);
+                    return -1;
+                }
                 break;
             case 'm':
                 mode = optarg;
                 break;
             case 's':
-                /* A try to make it available in a desktop environment:
+                /* An attempt to make it integrated in a desktop environment:
                  * the idea is to set a TIME and display the new value 
                  * according to the TIME set (useful if running DE with
                  * i3status / i3block / slstatus on DWM)
@@ -178,17 +184,21 @@ int main(int argc, char *argv[])
         }
     }
 
+    if(gen == 1) {
+        fprintf(stdout, "Creating encrypted providerrc\n");
+        generate_encrypted_providers(fname, fingerprint);
+        return 0;
+    }
+
     if(mode != NULL && (strcmp(mode, "gpg") == 0)) {
         /** Working in gpg mode, using gpgme provider **/
-        fprintf(stdout, "[Working in gpg mode]\n");
         lp = load_encrypted_providers(fname, fingerprint);
 
     } else {
-        fprintf(stdout, "[Working in plaintext mode]\n");
         lp = load_providers(fname);
     }
 
-    update_providers(TIME, update);
+    update_providers(update);
 }
 
 /**
@@ -197,12 +207,13 @@ int main(int argc, char *argv[])
  *  c_otp -f <file>
  *  c_otp -b <b32_sec>
  *  c_otp -m gpg -f <file>  -z fingerprint [-s]
- *  c_otp gen -f <plaintext_file> -z fingerprint
- * 
+ *  c_otp -g <plaintext_file> -z fingerprint
+ *
  *  TEST
  *  ---
  *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C
  *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C -s
+ *  ./c_otp -g providerrc.sample -z 0458D4D1F41BD75C
  *
  *  WRONG CASE
  *  ---
