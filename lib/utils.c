@@ -14,7 +14,8 @@
 
 #include "utils.h"
 
-PROVIDER *split_str(char *spl, char delim)
+PROVIDER *
+split_str(char *spl, char delim)
 {
     char *tmp_name;
     char *tmp_secret;
@@ -56,8 +57,8 @@ PROVIDER *split_str(char *spl, char delim)
     return p;
 }
 
-
-PROVIDER *process_provider(NODE **plist, char *line)
+PROVIDER *
+process_provider(NODE **plist, char *line)
 {
     PROVIDER *p;
     p = split_str(line, ':');
@@ -65,7 +66,8 @@ PROVIDER *process_provider(NODE **plist, char *line)
     return p;
 }
 
-static const int8_t base32_vals[256] = {
+static const int8_t
+base32_vals[256] = {
     //    This map cheats and interprets:
     //       - the numeral zero as the letter "O" as in oscar
     //       - the numeral one as the letter "L" as in lima
@@ -89,8 +91,7 @@ static const int8_t base32_vals[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0xF0
 };
 
-
-int 
+int
 validate_b32key(char *k, size_t len, size_t pos)
 {
 
@@ -122,7 +123,6 @@ validate_b32key(char *k, size_t len, size_t pos)
     }
     return 0;
 }
-
 
 size_t
 decode_b32key(uint8_t **k, size_t len)
@@ -189,7 +189,8 @@ file_exists(const char *fp) {
     return 1;
 }
 
-char *read_file(char *fname)
+char *
+read_file(char *fname)
 {
     FILE *f;
     size_t len = 1024;
@@ -214,7 +215,8 @@ char *read_file(char *fname)
 
 }
 
-void write_enc_file(char *fout, char *cipher_text, size_t bflen) 
+void
+write_file(char *fout, char *cipher_text, size_t bflen) 
 {
     FILE *f;
     f = fopen(fout, "w");

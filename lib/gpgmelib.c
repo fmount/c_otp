@@ -29,7 +29,8 @@ exit_with_err(gpgme_error_t err)
 
 }
 
-void init_context(void)
+void
+init_context(void)
 {
   gpgme_error_t err;
   gpgme_protocol_t protocol = GPGME_PROTOCOL_OpenPGP;
@@ -64,7 +65,7 @@ print_key_info(gpgme_key_t key)
     fprintf(stdout, "  ->fpr : %s\n", key->fpr);
 }
 
-void
+int
 select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key)
 {
   gpgme_error_t err;
@@ -75,7 +76,9 @@ select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key)
       #ifdef DEBUG
       fprintf(stderr, "%s\n", err);
       #endif
-      exit(-1);
+      /* TODO: Not exit -1 but handle returning something to
+       * the caller */
+      return -1;
   }
 
   #ifdef DEBUG
@@ -84,14 +87,8 @@ select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key)
   fprintf(stdout, "  ->encrypt: %d\n", (*key)->can_encrypt);
   fprintf(stdout, "  ->main fingerprint: %s\n", (*key)->fpr);
   #endif
-}
 
-void
-write_file(char *fout, char *cipher_text, size_t bflen) {
-  FILE *f;
-  f = fopen(fout, "w");
-  fwrite(cipher_text, sizeof(char), bflen, f);
-  fclose(f);
+  return 0;
 }
 
 char *
@@ -121,7 +118,8 @@ read_block(char *fin)
     return buf;
 }
 
-int encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
+int
+encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
         gpgme_data_t in, gpgme_data_t out, gpgme_encrypt_flags_t flags)
 {
 

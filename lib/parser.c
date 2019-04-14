@@ -24,7 +24,8 @@
 #include "gpgmelib.h"
 
 
-size_t load_providers(char *fname)
+size_t
+load_providers(char *fname)
 {
 
     FILE *f;
@@ -54,7 +55,8 @@ size_t load_providers(char *fname)
 
 }
 
-size_t load_encrypted_providers(char *fin, char *fingerprint)
+size_t
+load_encrypted_providers(char *fin, char *fingerprint)
 {
   if(fingerprint == NULL) {
       fprintf(stderr, "[GPGME] Fingerprint error!\n");
@@ -75,8 +77,6 @@ size_t load_encrypted_providers(char *fin, char *fingerprint)
   if (err)
     exit_with_err(err);
 
-  //First step is to select the key ..
-  select_key(ctx, fingerprint, &key[0]);
   gpgme_data_t dh = decrypt(fin, ctx, in, out);
 
   #ifdef DEBUG
@@ -122,7 +122,68 @@ size_t load_encrypted_providers(char *fin, char *fingerprint)
   return size(provider_list);
 }
 
-/*int main(int argc, char **argv)
+int
+generate_encrypted_providers(char *fin, char *fingerprint) {
+
+  if(fingerprint == NULL) {
+      fprintf(stderr, "[GPGME] Fingerprint error!\n");
+      return -1;
+  }
+
+  gpgme_ctx_t ctx;
+  gpgme_error_t err;
+  gpgme_data_t in, out;
+  gpgme_key_t key[2] = { NULL, NULL };
+  gpgme_encrypt_flags_t flags = GPGME_ENCRYPT_ALWAYS_TRUST;
+
+  init_context();
+
+  err = gpgme_new(&ctx);
+  gpgme_set_armor(ctx, 1);
+  gpgme_set_protocol(ctx, PROTOCOL);
+
+  if (err)
+    exit_with_err(err);
+
+  if (select_key(ctx, fingerprint, &key[0]) != 0) {
+      fprintf(stderr, "[GPGME] Plaintext file not found!\n");
+      return -1;
+  }
+
+  char *plaintext = read_file(fin);
+
+  if(plaintext == NULL) {
+      fprintf(stderr, "[GPGME] Plaintext file not found!\n");
+      return -1;
+  }
+
+  err = gpgme_data_new_from_mem(&in, plaintext, strlen(plaintext), 0);
+
+  if (err)
+      exit_with_err(err);
+
+  gpgme_data_new(&out);
+
+  char *fout = (char *) malloc(strlen(fin) * sizeof(char) + 1);
+  strncpy(fout, fin, strlen(fin));
+  strncat(fout, ".gpg", 4);
+
+  int result = encrypt(fout, ctx, key, in, out, flags);
+
+  if(result != 0) {
+      fprintf(stdout, "Error Occurred");
+      return -1;
+  }
+  else
+      fprintf(stdout, "[GPGME] Encrypted providerrc generated\n");
+
+  return 0;
+}
+
+
+/*
+ * int
+ * main(int argc, char **argv)
 {
 
     char *fname = NULL;

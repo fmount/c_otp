@@ -24,3 +24,4 @@ extern NODE *provider_list;
 
 size_t load_providers(char *fname);
 size_t load_encrypted_providers(char *fname, char *fingerprint);
+int generate_encrypted_providers(char *fin, char *fingerprint);
