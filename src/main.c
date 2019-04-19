@@ -16,15 +16,11 @@
 #include <string.h>
 #include "rfc4226.h"
 #include "rfc6238.h"
+#include "config.h"
 #include "utils.h"
 
 #include "parser.h"
 
-#define T0 0
-#define DIGITS 6
-#define VALIDITY 30
-#define TIME 2
-#define VERSION 1.0
 
 extern NODE *provider_list = NULL;
 
@@ -136,7 +132,9 @@ main(int argc, char *argv[])
         return -1;
     }
 
-    while((opt = getopt(argc, argv, "b:f:m:g:z:vsh")) != -1 ) {
+    int long_index =0;
+    while ((opt = getopt_long(argc, argv,"b:f:m:g:z:vsh",
+                   long_options, &long_index )) != -1) {
         switch(opt) {
             case 'b':
                 /**
@@ -190,15 +188,12 @@ main(int argc, char *argv[])
                 break;
             default:
                 usage(argv);
-                return -1;
+                exit(EXIT_FAILURE);
         }
     }
 
-    if(gen == 1) {
-        fprintf(stdout, "Creating encrypted providerrc\n");
-        generate_encrypted_providers(fname, fingerprint);
-        return 0;
-    }
+    if(gen == 1)
+        return generate_encrypted_providers(fname, fingerprint);
 
     if(mode != NULL && (strcmp(mode, "gpg") == 0)) {
         /** Working in gpg mode, using gpgme provider **/
@@ -210,23 +205,3 @@ main(int argc, char *argv[])
 
     update_providers(update);
 }
-
-/**
- *  CMD LINE DESIGN:
- *  ----------------
- *  c_otp -f <file>
- *  c_otp -b <b32_sec>
- *  c_otp -m gpg -f <file>  -z fingerprint [-s]
- *  c_otp -g <plaintext_file> -z fingerprint
- *
- *  TEST
- *  ---
- *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C
- *  ./c_otp -f providerrc.sample.gpg -m gpg -z 0458D4D1F41BD75C -s
- *  ./c_otp -g providerrc.sample -z 0458D4D1F41BD75C
- *
- *  TEST CASE(s) [TODO]
- *  ---
- *  ./c_otp -f providerrc.sample -m gpg -z 0458D4D1F41BD75C (PLAIN TEXT FILE)
- *  ./c_otp -f providerrc.sample.gpg  (ENC PROVIDER LIST IN PLAINTEXT MODE)
- */
