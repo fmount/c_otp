@@ -3,6 +3,7 @@ D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)
+CODE=$(wildcard src)
 #SRC := $(filter-out src/parser.c, $(SRC))
 OBJECTS=*.o
 TNAME=c_otp
@@ -32,11 +33,12 @@ ifneq ($(wildcard .git/.),)
 	DEFINES+=-DGIT_HASH=\"$(GIT_HASH)\"
 endif
 
-
-all: clean build $(OBJECTS) $(OBJECTS_LB)
+all: clean config build $(OBJECTS) $(OBJECTS_LB)
 	@echo Building the c_otp package
 	$(CC) -o ${PREFIX}/$(TNAME) $(OBJECTS) $(OBJECTS_LB) $(LDLIBS) $(INCLUDE) $(WARNFLAGS)
 
+config:
+	cp $(CODE)/config.def.h $(CODE)/config.h
 
 clean:
 	@echo Removing build directories

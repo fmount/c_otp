@@ -17,6 +17,7 @@
 #include "rfc4226.h"
 #include "rfc6238.h"
 #include "config.h"
+#include "arg.h"
 #include "utils.h"
 
 #include "parser.h"
