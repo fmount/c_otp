@@ -155,7 +155,7 @@ main(int argc, char *argv[])
             case 'f':
                 fname = optarg;
                 if (file_exists(fname) != 0) {
-                    fprintf(stderr, "%s: the provided file doesn't exists", fname);
+                    fprintf(stderr, "%s: the provided file doesn't exists\n", fname);
                     return -1;
                 }
                 break;
@@ -163,7 +163,7 @@ main(int argc, char *argv[])
                 fname = optarg;
                 gen = 1;
                 if (file_exists(fname) != 0) {
-                    fprintf(stderr, "%s: the provided file doesn't exists", fname);
+                    fprintf(stderr, "%s: the provided file doesn't exists\n", fname);
                     return -1;
                 }
                 break;
