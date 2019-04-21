@@ -52,7 +52,7 @@ print_keylist(gpgme_ctx_t ctx, gpgme_key_t key)
     fprintf(stdout, " KEY INFO\n");
     fprintf(stdout, "  ->email : %s\n", key->uids->email);
     fprintf(stdout, "  ->encrypt : %d\n", key->can_encrypt);
-    fprintf(stdout, "  ->fpr : %s\n", key->fpr);
+    //fprintf(stdout, "  ->fpr : %s\n", key->fpr);
   }
 }
 
@@ -62,7 +62,7 @@ print_key_info(gpgme_key_t key)
     fprintf(stdout, " KEY INFO\n");
     fprintf(stdout, "  ->email : %s\n", key->uids->email);
     fprintf(stdout, "  ->encrypt : %d\n", key->can_encrypt);
-    fprintf(stdout, "  ->fpr : %s\n", key->fpr);
+    //fprintf(stdout, "  ->fpr : %s\n", key->fpr);
 }
 
 int
@@ -119,7 +119,7 @@ read_block(char *fin)
 }
 
 int
-encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
+g_encrypt(char *fout, gpgme_ctx_t ctx, gpgme_key_t key[], \
         gpgme_data_t in, gpgme_data_t out, gpgme_encrypt_flags_t flags)
 {
 

@@ -7,12 +7,12 @@ CODE=$(wildcard src)
 #SRC := $(filter-out src/parser.c, $(SRC))
 OBJECTS=*.o
 TNAME=c_otp
-# compiler
-CC=gcc
+# compiler: commented to allow defining it from CI
+#CC=gcc
 CFLAGS=-Wall
 DEBUG=
 #WARNFLAGS=-Wsign-compare -Wint-conversion -fno-stack-protector
-WARNFLAGS=-Wsign-compare -Wint-conversion
+WARNFLAGS=-Wsign-compare -Wint-conversion -Wno-stringop-overflow
 LDLIBS+=-lm -lcrypto -lgpgme
 INCLUDE=-I lib
 OBJECTS=$(patsubst %.c, %.o, $(SRC))

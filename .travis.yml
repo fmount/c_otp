@@ -1,0 +1,28 @@
+language: c
+sudo: true
+env:
+  global:
+    - REPO=c_otp
+
+branches:
+  only:
+  - master
+  - gpg_feature
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      compiler: gcc
+    - os: linux
+      dist: xenial
+      compiler: clang
+
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install libgpgme11-dev libssl-dev
+
+script:
+  - make clean; make;
+    # running tests ..
+  - make clean;
