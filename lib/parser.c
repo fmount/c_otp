@@ -165,7 +165,7 @@ generate_encrypted_providers(char *fin, char *fingerprint) {
   //strcat(fout, ".gpg");
   strncat(fout, ".gpg", 4);
 
-  int result = encrypt(fout, ctx, key, in, out, flags);
+  int result = g_encrypt(fout, ctx, key, in, out, flags);
 
   if(result != 0) {
       fprintf(stdout, "Error Occurred");
