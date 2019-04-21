@@ -21,6 +21,7 @@ split_str(char *spl, char delim)
     char *tmp_secret;
     PROVIDER *p;
     size_t count = 0;
+    size_t totlen = strlen(spl)-2;
 
     //Get break point
     do {
@@ -29,19 +30,22 @@ split_str(char *spl, char delim)
 
 
     tmp_name = (char *) malloc(count * sizeof(char));
-    tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
+    tmp_secret = (char *) malloc((totlen-count) * sizeof(char));
 
     /*
      * Get first part of the string
      */
     memcpy(tmp_name, spl, count);
+    tmp_name[count] = '\0';
     /*
      * Get second part of the string
      */
-    memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
+    memcpy(tmp_secret, spl+(count+1), (totlen-count));
+    tmp_secret[(totlen-count)] = '\0';
 
 #ifdef DEBUG
 
+    printf("[RECEIVED LINE]: %s\n", spl);
     printf("[GOT LEN]: %ld\n", strlen(spl));
     printf("[PROVIDER SECTION]: %ld characters\n", count);
     printf("[GOT NAME]: %s\n", tmp_name);
