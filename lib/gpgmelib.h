@@ -15,10 +15,10 @@
 #ifndef _GPGMELIB_H
 #define _GPGMELIB_H
 
-#include<stdio.h>
-#include<stdint.h>
-#include<stdlib.h>
-#include<gpgme.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <gpgme.h>
 
 #include "plist.h"
 

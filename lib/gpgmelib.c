@@ -12,9 +12,9 @@
  *
  */
 
-#include<locale.h>
-#include<errno.h>
-#include<string.h>
+#include <locale.h>
+#include <errno.h>
+#include <string.h>
 
 #include "gpgmelib.h"
 #include "utils.h"
