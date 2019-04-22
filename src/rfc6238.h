@@ -15,10 +15,10 @@
 #ifndef RFC6238_H
 #define RFC6238_H
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include<time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
 
 #include "rfc4226.h"
 
