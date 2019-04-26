@@ -28,6 +28,8 @@ split_str(char *spl, char delim)
         count++;
     } while (spl[count] != delim);
 
+    if (count > totlen)
+        return NULL;
 
     tmp_name = (char *) malloc(count * sizeof(char));
     tmp_secret = (char *) malloc((totlen-count) * sizeof(char));
@@ -66,7 +68,8 @@ process_provider(NODE **plist, char *line)
 {
     PROVIDER *p;
     p = split_str(line, ':');
-    push(plist, p->pname, p->psecret, p->otpvalue);
+    if (p != NULL)
+        push(plist, p->pname, p->psecret, p->otpvalue);
     return p;
 }
 
