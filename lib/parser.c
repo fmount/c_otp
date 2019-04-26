@@ -75,14 +75,27 @@ load_encrypted_providers(char *fin)
 
   gpgme_data_t dh = decrypt(fin, ctx, in, out);
 
+  size_t tl = gpgme_data_seek(dh, 0, SEEK_END);
+
   #ifdef DEBUG
   print_gpgme_data(dh);
+  fprintf(stdout, "\n[LENGTH]: %zu\n", tl);
   #endif
 
-  gpgme_data_seek(dh, 0, SEEK_SET);
-  char *buf = (char*)malloc(BUFSIZE*sizeof(char));
+  if (tl >= BUFSIZE_LIM) {
+    fprintf(stderr, "[ERROR]: Max providerrc size reached, please split it in different files\n");
+    return 0;
+  }
 
-  while(gpgme_data_read(dh, buf, BUFSIZE) > 0) {
+  gpgme_data_seek(dh, 0, SEEK_SET);
+  char *buf = (char*)malloc(tl * sizeof(char));
+
+  /**
+   *  We can try to handle multi-block
+   *  natively in the future ..
+   */
+
+  while(gpgme_data_read(dh, buf, tl) > 0) {
       process_block(buf);
 
       /***
@@ -92,7 +105,7 @@ load_encrypted_providers(char *fin)
        *
        * if (line[0] != '#')
        *    process_provider(&provider_list, line);
-       * 
+       *
        * So  |BLOCK| => | l1 | => while(lines) {
        *                | l2 |      process_provider(..)
        *                | l3 |    }
@@ -162,7 +175,6 @@ generate_encrypted_providers(char *fin, char *fingerprint) {
 
   char *fout = (char *) malloc(strlen(fin) * sizeof(char) + 1);
   strncpy(fout, fin, strlen(fin));
-  //strcat(fout, ".gpg");
   strncat(fout, ".gpg", 4);
 
   int result = g_encrypt(fout, ctx, key, in, out, flags);

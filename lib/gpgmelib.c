@@ -85,7 +85,7 @@ select_key(gpgme_ctx_t ctx, char *fingerprint, gpgme_key_t *key)
   fprintf(stdout, "SELECTED KEY:\n");
   fprintf(stdout, "  ->email: %s\n", (*key)->uids->email);
   fprintf(stdout, "  ->encrypt: %d\n", (*key)->can_encrypt);
-  fprintf(stdout, "  ->main fingerprint: %s\n", (*key)->fpr);
+  //fprintf(stdout, "  ->main fingerprint: %s\n", (*key)->fpr);
   #endif
 
   return 0;
@@ -153,9 +153,18 @@ void
 process_block(char *block)
 {
     #ifdef DEBUG
-    fprintf(stdout, "[NEW BLOCK RECEIVED]\n%s\n", block);
-    fprintf(stdout, "[BLOCK LEN] %lu\n", strlen(block));
+    fprintf(stdout, "\n---------BLOCK-----------\n");
+    char * l = strtok(strdup(block), "\n");
+    while(l) {
+        printf("%s\n", l);
+        l  = strtok(NULL, "\n");
+    }
+    fprintf(stdout, "---------EOB-----------\n");
     #endif
+
+    if (strlen(block) <= 0)
+        return;
+
     int bsize = strlen(block);
     char *line;
     size_t i = 0; /* Useful to scan a row of the block (line scan) */
@@ -168,13 +177,13 @@ process_block(char *block)
             i++;
         }
         while(block[(cursor + i)] != '\n');
-
         line = (char*) malloc(i*sizeof(char) + 1);
         memcpy(line, (block + cursor), i * sizeof(char) + 1);
         line[i + 1] = '\0';
 
-        if (line[0] != '#')
+        if (line[0] != '#') {
             process_provider(&provider_list, line);
+        }
 
         cursor += i;
         #ifdef DEBUG
@@ -203,7 +212,7 @@ print_gpgme_data(gpgme_data_t data)
 
     gpgme_data_seek (data, 0, SEEK_SET);
     while(gpgme_data_read(data, buf, BUFSIZE) > 0) {
-        fprintf(stdout, "%s\n", buf);
+        fprintf(stdout, "%s", buf);
     }
 }
 

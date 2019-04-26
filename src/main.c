@@ -22,7 +22,6 @@
 
 #include "parser.h"
 
-
 extern NODE *provider_list = NULL;
 
 uint32_t
@@ -66,7 +65,6 @@ update_providers(int uc) {
     uint32_t result;
 
     if(cur == NULL) {
-        fprintf(stderr, "Provider list is empty\n");
         return -1;
     }
 

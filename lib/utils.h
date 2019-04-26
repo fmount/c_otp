@@ -23,6 +23,8 @@
 #include <sys/stat.h>
 #include "plist.h"
 
+#define BUFSIZE_LIM 1024
+
 PROVIDER *split_str(char *spl, char delim);
 PROVIDER *process_provider(NODE **plist, char *line);
 int validate_b32key(char *k, size_t len, size_t pos);
