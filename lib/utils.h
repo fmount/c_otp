@@ -24,13 +24,16 @@
 #include "plist.h"
 
 #define BUFSIZE_LIM 1024
+#define MAX_LINES 55
 
 PROVIDER *split_str(char *spl, char delim);
 PROVIDER *process_provider(NODE **plist, char *line);
 int validate_b32key(char *k, size_t len, size_t pos);
 int file_exists(const char *fpath);
+int valid_provider(char * line, const char * pattern);
 size_t decode_b32key(uint8_t **k, size_t len);
 char *read_file(char *fin);
+size_t len(char *fin);
 void write_file(char *fout, char *cipher_text, size_t bflen);
 
 #endif

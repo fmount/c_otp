@@ -29,19 +29,32 @@ load_providers(char *fname)
 {
 
     FILE *f;
-    size_t len = 1024;
+    size_t length = 1024;
 
     if (fname == NULL)
         exit(ENOENT);
+
     f = fopen(fname, "r");
+
     if (f == NULL)
         exit(ENOENT);
-    char *line = NULL;
-    while (getline(&line, &len, f) != -1) {
-        /** TODO: VALIDATE LINE BEFORE PROCESSING IT **/
-        if (line[0] != '#')
-            process_provider(&provider_list, line);
+
+    /* Fix an upper bound to protect the max size allowed */
+    if (len(fname) > MAX_LINES) {
+        fprintf(stderr, "[ERROR]: Max providerrc size reached");
+        fprintf(stderr, "for a plaintext file are allowed up to %d lines:", MAX_LINES);
+        fprintf(stderr, " please split it in different files\n");
+        return -1;
     }
+
+    char *line = NULL;
+
+    while (getline(&line, &length, f) != -1) {
+        if (line[0] != '#' && valid_provider(line, "[a-zA-Z0-9]:[a-zA-Z0-9]") == 0)
+            process_provider(&provider_list, line);
+
+    }
+
 
     free(line);
 
@@ -83,7 +96,7 @@ load_encrypted_providers(char *fin)
   #endif
 
   if (tl >= BUFSIZE_LIM) {
-    fprintf(stderr, "[ERROR]: Max providerrc size reached, please split it in different files\n");
+    fprintf(stderr, "[Error]: Max providerrc size reached, please split it in different files\n");
     return 0;
   }
 

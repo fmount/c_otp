@@ -13,6 +13,7 @@
  */
 
 #include "utils.h"
+#include <regex.h>
 
 PROVIDER *
 split_str(char *spl, char delim)
@@ -26,9 +27,9 @@ split_str(char *spl, char delim)
     //Get break point
     do {
         count++;
-    } while (spl[count] != delim);
+    } while ((spl[count] != delim) && (count < totlen));
 
-    if (count > totlen)
+    if ((totlen-count) <= 0)
         return NULL;
 
     tmp_name = (char *) malloc(count * sizeof(char));
@@ -61,6 +62,38 @@ split_str(char *spl, char delim)
     p->psecret = tmp_secret;
     p->otpvalue = NULL;
     return p;
+}
+
+int
+valid_provider(char * line, const char * pattern)
+{
+
+    int s;
+    regex_t re;
+
+    s = regcomp(&re, pattern, 0);
+
+    if( s ) {
+        fprintf(stderr, "Could not compile regex\n");
+        return s;
+    }
+
+    s = regexec(&re, line, 0, NULL, REG_EXTENDED);
+
+    #ifdef DEBUG
+
+    fprintf(stdout, "\n[LINE]: %s", line);
+    fprintf(stdout, "[REGEX] exit value: %d\n", s);
+
+    if(!s)
+        fprintf(stdout, "[REGEX] Match\n");
+    else if( s == REG_NOMATCH )
+        fprintf(stdout, "[REGEX] No match\n");
+
+    #endif
+    regfree(&re);
+
+    return s;
 }
 
 PROVIDER *
@@ -196,19 +229,46 @@ file_exists(const char *fp) {
     return 1;
 }
 
+size_t
+len(char *fname)
+{
+    FILE *f;
+    size_t count = 0;
+    size_t len = 1024;
+
+    if (fname == NULL)
+        exit(ENOENT);
+
+    f = fopen(fname, "r");
+
+    if (f == NULL)
+        return 0;
+
+    char *line = NULL;
+
+    while (getline(&line, &len, f) != -1)
+        count++;
+
+    return count;
+}
+
 char *
 read_file(char *fname)
 {
     FILE *f;
-    size_t len = 1024;
+
     if (fname == NULL)
         exit(ENOENT);
+
     f = fopen(fname, "r");
+
     if (f == NULL)
         exit(ENOENT);
+
     //Get the lenght of the file
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
+
 
     //Rewind at the start of the file (rewind(f))
     fseek(f, 0, SEEK_SET);

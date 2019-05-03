@@ -181,13 +181,13 @@ process_block(char *block)
         memcpy(line, (block + cursor), i * sizeof(char) + 1);
         line[i + 1] = '\0';
 
-        if (line[0] != '#') {
+        if (line[0] != '#' && valid_provider(line, "[a-zA-Z0-9]:[a-zA-Z0-9]") == 0) {
             process_provider(&provider_list, line);
         }
 
         cursor += i;
         #ifdef DEBUG
-        fprintf(stdout, "\nPROVIDER: %s\n", line);
+        fprintf(stdout, "\nPROVIDER: %s", line);
         fprintf(stdout, "cursor: %d\n", cursor);
         fprintf(stdout, "i: %zu\n", i);
         #endif

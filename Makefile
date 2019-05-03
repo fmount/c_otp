@@ -45,6 +45,11 @@ clean:
 	rm -rf ${PREFIX}
 	find . -name "*.o" -exec rm {} \;
 
+requirement:
+	@echo Install requirement for $(DISTRO)
+
+test: all
+	@echo Executing tests
 
 install:
 	@echo Installing the c_otp package on the system
