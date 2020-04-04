@@ -20,9 +20,8 @@
 
 #include "plist.h"
 
-//static NODE *provider_list = NULL;
-extern NODE *provider_list;
+extern NODE * provider_list;
 
-PROVIDER *split_str(char *spl, char delim);
-PROVIDER *process_provider(NODE **plist, char *line);
+PROVIDER split_str(char *spl, char delim);
+void process_provider(NODE **plist, char *line);
 void load_providers(char *fname);
