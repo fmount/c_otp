@@ -22,7 +22,7 @@
 
 #include "rfc4226.h"
 
-#define TS 30   //time step in seconds, default value as per Google implementation
+#define TS 30   /* time step in seconds, default value */
 
 
 /******** RFC6238 **********

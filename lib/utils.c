@@ -40,7 +40,7 @@ static const int8_t base32_vals[256] = {
 };
 
 
-int 
+int
 validate_b32key(char *k, size_t len, size_t pos)
 {
 
