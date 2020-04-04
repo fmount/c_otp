@@ -18,35 +18,38 @@
 #include<errno.h>
 #include<string.h>
 #include<unistd.h>
-
 #include "plist.h"
 #include "parser.h"
 
 
-PROVIDER *split_str(char *spl, char delim)
+PROVIDER
+split_str(char *spl, char delim)
 {
     char *tmp_name;
     char *tmp_secret;
-    PROVIDER *p;
+    PROVIDER p;
     size_t count = 0;
+
+    size_t totlen = strlen(spl) - 2;
 
     //Get break point
     do {
         count++;
     } while (spl[count] != delim);
 
-
-    tmp_name = (char *) malloc(count * sizeof(char));
-    tmp_secret = (char *) malloc((strlen(spl)-count) * sizeof(char));
+    tmp_name = (char *) malloc(count * sizeof(char) + 1);
+    tmp_secret = (char *) malloc((totlen-count) * sizeof(char) + 1);
 
     /*
      * Get first part of the string
      */
     memcpy(tmp_name, spl, count);
+    tmp_name[count] = '\0';
     /*
      * Get second part of the string
      */
-    memcpy(tmp_secret, spl+(strlen(tmp_name)+1), (strlen(spl)-strlen(tmp_name))-2);
+    memcpy(tmp_secret, spl+(count+1), (totlen-count));
+    tmp_secret[(totlen-count)] = '\0';
 
 #ifdef DEBUG
 
@@ -58,23 +61,25 @@ PROVIDER *split_str(char *spl, char delim)
 
 #endif
 
-    p = malloc(sizeof(PROVIDER));
-    p->pname = tmp_name;
-    p->psecret = tmp_secret;
-    p->otpvalue = NULL;
+    p = (PROVIDER) {
+        .pname = tmp_name,
+        .psecret = tmp_secret,
+        .otpvalue = NULL
+    };
+
     return p;
 }
 
-PROVIDER *process_provider(NODE **plist, char *line)
+void
+process_provider(NODE **plist, char *line)
 {
-    PROVIDER *p;
+    PROVIDER p;
     p = split_str(line, ':');
-    push(plist, p->pname, p->psecret, p->otpvalue);
-    /* printf("GOT PROVIDER %s with secret %s\n", p->pname, p->psecret); */
-    return p;
+    push(plist, p.pname, p.psecret, p.otpvalue);
 }
 
-void load_providers(char *fname)
+void
+load_providers(char *fname)
 {
 
     FILE *f;
@@ -86,21 +91,19 @@ void load_providers(char *fname)
     if (f == NULL)
         exit(ENOENT);
     char *line = NULL;
+
     while (getline(&line, &len, f) != -1) {
         if (line[0] != '#')
             process_provider(&provider_list, line);
     }
 
     free(line);
-
-    #ifdef DEBUG
-
-    print(provider_list);
-
-    #endif
+    fclose(f);
 }
 
-/*int main(int argc, char **argv)
+/*
+int
+main(int argc, char **argv)
 {
 
     char *fname = NULL;
@@ -112,16 +115,17 @@ void load_providers(char *fname)
 
     while((opt = getopt(argc, argv, "f:v")) != -1 ) {
         switch(opt) {
-            case 'f':
-              fname = optarg;
-              break;
-            case 'v':
-              break;
-            default:
-              fprintf(stderr, "Usage: %s [-f fname]\n", argv[0]);
+        case 'f':
+          fname = optarg;
+          break;
+        case 'v':
+          break;
+        default:
+          fprintf(stderr, "Usage: %s [-f fname]\n", argv[0]);
         }
     }
 
     load_providers(fname);
     return 0;
-}*/
+}
+*/

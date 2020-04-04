@@ -34,7 +34,12 @@ typedef struct Node {
 } NODE;
 
 
-void print(NODE *head);
+void print(NODE *head, int mode);
+void print_status(NODE *head);
+void print_json(NODE *head);
+void freeList(NODE *head);
+void freeProvider(PROVIDER *p);
+size_t get_len(NODE *head);
 int update_value(NODE **head, char *pname, uint32_t optvalue);
 void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue);
 void del(char *del, NODE *head);
