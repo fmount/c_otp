@@ -21,14 +21,16 @@
 #include<openssl/evp.h>
 
 
-uint8_t *hmac(unsigned char *key, int kl, uint64_t interval)
+uint8_t
+*hmac(unsigned char *key, int kl, uint64_t interval)
 {
 
     return (uint8_t *)HMAC(EVP_sha1(), key, kl,
             (const unsigned char *)&interval, sizeof(interval), NULL, 0);
 }
 
-uint32_t DT(uint8_t *digest)
+uint32_t
+DT(uint8_t *digest)
 {
 
     uint64_t offset;
@@ -62,7 +64,8 @@ uint32_t DT(uint8_t *digest)
 }
 
 
-uint32_t mod_hotp(uint32_t bin_code, int digits)
+uint32_t
+mod_hotp(uint32_t bin_code, int digits)
 {
     int power = pow(10, digits);
     uint32_t otp = bin_code % power;
@@ -71,7 +74,8 @@ uint32_t mod_hotp(uint32_t bin_code, int digits)
 }
 
 
-uint32_t HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
+uint32_t
+HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
 {
 
     uint8_t *digest;
