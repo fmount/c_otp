@@ -15,10 +15,51 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
 #include "plist.h"
 
-void print(NODE *head) {
+
+void
+print(NODE *head, int mode)
+{
+    switch(mode) {
+    case 0:
+        print_status(head);
+        break;
+    case 1:
+        print_json(head);
+        break;
+    default:
+        print_status(head);
+    }
+}
+
+void
+print_json(NODE *head)
+{
+
+    NODE *cur = NULL;
+    cur = head;
+
+    size_t len = get_len(head);
+
+    printf("{\n");
+    printf("\t\"providers\": {\n");
+
+    while (len > 0) {
+        if (len == 1)
+            printf("\t\t\"%s\": \"%06u\"\n", (cur->p)->pname, (cur->p)->otpvalue);
+        else
+            printf("\t\t\"%s\": \"%06u\",\n", (cur->p)->pname, (cur->p)->otpvalue);
+        cur = cur->next;
+        len--;
+    }
+    printf("\t}\n");
+    printf("}\n");
+}
+
+void
+print_status(NODE *head)
+{
 
     NODE *cur = NULL;
     cur = head;
@@ -26,21 +67,36 @@ void print(NODE *head) {
     printf("[");
 
     while (cur != NULL && (cur->p)->otpvalue != NULL) {
-        printf(" (%s: %06u) ", (cur->p)->pname, (cur->p)->otpvalue);
+        printf("(%s: %06u)", (cur->p)->pname, (cur->p)->otpvalue);
         cur = cur->next;
     }
     printf("]\n");
-
 }
 
+size_t
+get_len(NODE *head)
+{
 
-bool exists(NODE *head, NODE *target) {
+    NODE *cur = NULL;
+    cur = head;
+    size_t length = 0;
+
+    while (cur != NULL) {
+        cur = cur->next;
+        length++;
+    }
+    return length;
+}
+
+bool
+exists(NODE *head, NODE *target)
+{
     printf("Check if the target node exists in list\n");
 
     NODE *cur = NULL;
     cur = head;
-    while(cur != NULL) {
-        if((cur->p)->pname == (target->p)->pname)
+    while (cur != NULL) {
+        if ((cur->p)->pname == (target->p)->pname)
             return 1;
         cur = cur->next;
     }
@@ -48,12 +104,14 @@ bool exists(NODE *head, NODE *target) {
 
 }
 
-NODE *get_node(NODE *head, char *pname) {
+NODE
+*get_node(NODE *head, char *pname)
+{
 
     NODE *cur = NULL;
     cur = head;
-    while(cur != NULL) {
-        if((cur->p)->pname == pname) {
+    while (cur != NULL) {
+        if ((cur->p)->pname == pname) {
             return cur;
         }
         cur = cur->next;
@@ -61,12 +119,14 @@ NODE *get_node(NODE *head, char *pname) {
     return NULL;
 }
 
-int update_value(NODE **head, char *pname, uint32_t optvalue) {
+int
+update_value(NODE **head, char *pname, uint32_t optvalue)
+{
     NODE *cur;
     cur = *head;
     uint32_t *x = &optvalue;
-    while(cur != NULL) {
-        if((cur->p)->pname == pname) {
+    while (cur != NULL) {
+        if ((cur->p)->pname == pname) {
             (cur->p)->otpvalue = *x;
             return 0;
         }
@@ -75,32 +135,38 @@ int update_value(NODE **head, char *pname, uint32_t optvalue) {
     return -1;
 }
 
-void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue) {
+void
+push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue)
+{
 
-    NODE *cur = (NODE*) malloc(sizeof(NODE));
+    NODE *cur = (NODE *) malloc(sizeof(NODE));
+    PROVIDER *p = (PROVIDER *) malloc(sizeof(PROVIDER));
 
-    PROVIDER *p = (PROVIDER*) malloc(sizeof(PROVIDER));
     p->pname = pname;
     p->psecret = psecret;
     p->otpvalue = otpvalue;
+
     cur->p = p;
 
     cur->next = *head;
     *head = cur;
 }
 
-NODE *pop(NODE **head) {
+NODE
+*pop(NODE **head)
+{
 
     NODE *tmp = *head;
     *head = (*head)->next;
     return tmp;
 }
 
-void del(char *del, NODE *head) {
+void
+del(char *del, NODE *head)
+{
 
-    if(head == NULL) {
+    if(head == NULL)
         fprintf(stderr, "No valid list, no head found\n");
-    }
 
     NODE *cur = NULL;
     NODE *prev = NULL;
@@ -112,17 +178,43 @@ void del(char *del, NODE *head) {
         cur = cur->next;
     }
     // Reached the end, should return ..
-    if(cur == NULL) return;
-
-    /* Found the pname in the list, free the node and 
+    if(cur == NULL)
+        return;
+    /* Found the pname in the list, free the node and
      * modify the pointer to next
      */
     prev->next = cur->next;
     free(cur);
 }
 
-/** TESTING MAIN 
-int main() {
+void
+freeProvider(PROVIDER *p)
+{
+    free(p->pname);
+    free(p->psecret);
+    free((PROVIDER *)p);
+}
+
+void
+freeList(NODE *head)
+{
+   NODE *tmp;
+
+   while (head != NULL) {
+       tmp = head;
+       #ifdef DEBUG
+       printf("Deleting Provider %s\n", (tmp->p)->pname);
+       #endif
+       freeProvider(tmp->p);
+       head = head->next;
+       free(tmp);
+   }
+}
+
+/*
+int
+main()
+{
 
     //NODE *head = (NODE*) malloc(sizeof(NODE));
     NODE *head = NULL;
@@ -134,7 +226,7 @@ int main() {
     pushHead(&head, "PROTONMAIL", "jsdios90");
 
 
-    * Testing POP 
+    * Testing POP
     * tmp = pop(&head);
     * printf("[POP] => Got Node: (%s - %s)\n", (tmp->p)->pname, (tmp->p)->psecret);
     * tmp = pop(&head);
@@ -149,7 +241,7 @@ int main() {
     *  deleteNode("TESTINGDELETE", head);
     *
     **/
-/**
+/*
     printlist(head);
     return 0;
 }
