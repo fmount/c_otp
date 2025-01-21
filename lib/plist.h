@@ -24,7 +24,7 @@
 typedef struct {
     char *pname;
     char *psecret;
-    uint32_t *otpvalue;
+    uint32_t otpvalue;
 } PROVIDER;
 
 
@@ -40,8 +40,7 @@ void print_json(NODE *head);
 void freeList(NODE *head);
 void freeProvider(PROVIDER *p);
 size_t get_len(NODE *head);
-int update_value(NODE **head, char *pname, uint32_t optvalue);
-void push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue);
+void push(NODE **head, char *pname, char *psecret, uint32_t otpvalue);
 void del(char *del, NODE *head);
 bool exists(NODE *head, NODE *target);
 NODE *pop(NODE **head);

@@ -32,7 +32,7 @@ split_str(char *spl, char delim)
 
     size_t totlen = strlen(spl) - 2;
 
-    //Get break point
+    // Get break point
     do {
         count++;
     } while (spl[count] != delim);
@@ -40,14 +40,10 @@ split_str(char *spl, char delim)
     tmp_name = (char *) malloc(count * sizeof(char) + 1);
     tmp_secret = (char *) malloc((totlen-count) * sizeof(char) + 1);
 
-    /*
-     * Get first part of the string
-     */
+    // Get first part of the string
     memcpy(tmp_name, spl, count);
     tmp_name[count] = '\0';
-    /*
-     * Get second part of the string
-     */
+    // Get second part of the string
     memcpy(tmp_secret, spl+(count+1), (totlen-count));
     tmp_secret[(totlen-count)] = '\0';
 
@@ -64,9 +60,8 @@ split_str(char *spl, char delim)
     p = (PROVIDER) {
         .pname = tmp_name,
         .psecret = tmp_secret,
-        .otpvalue = NULL
+        .otpvalue = -1, // Setting to 0 as we do not have any computed data yet
     };
-
     return p;
 }
 
@@ -81,7 +76,6 @@ process_provider(NODE **plist, char *line)
 void
 load_providers(char *fname)
 {
-
     FILE *f;
     size_t len = 1024;
 

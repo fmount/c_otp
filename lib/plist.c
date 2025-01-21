@@ -39,9 +39,7 @@ print_json(NODE *head)
 
     NODE *cur = NULL;
     cur = head;
-
     size_t len = get_len(head);
-
     printf("{\n");
     printf("\t\"providers\": {\n");
 
@@ -53,6 +51,7 @@ print_json(NODE *head)
         cur = cur->next;
         len--;
     }
+
     printf("\t}\n");
     printf("}\n");
 }
@@ -65,8 +64,7 @@ print_status(NODE *head)
     cur = head;
 
     printf("[");
-
-    while (cur != NULL && (cur->p)->otpvalue != NULL) {
+    while (cur != NULL && (cur->p)->otpvalue != 0) {
         printf("(%s: %06u)", (cur->p)->pname, (cur->p)->otpvalue);
         cur = cur->next;
     }
@@ -76,11 +74,9 @@ print_status(NODE *head)
 size_t
 get_len(NODE *head)
 {
-
     NODE *cur = NULL;
     cur = head;
     size_t length = 0;
-
     while (cur != NULL) {
         cur = cur->next;
         length++;
@@ -91,8 +87,6 @@ get_len(NODE *head)
 bool
 exists(NODE *head, NODE *target)
 {
-    printf("Check if the target node exists in list\n");
-
     NODE *cur = NULL;
     cur = head;
     while (cur != NULL) {
@@ -101,13 +95,11 @@ exists(NODE *head, NODE *target)
         cur = cur->next;
     }
     return 0;
-
 }
 
 NODE
 *get_node(NODE *head, char *pname)
 {
-
     NODE *cur = NULL;
     cur = head;
     while (cur != NULL) {
@@ -119,35 +111,16 @@ NODE
     return NULL;
 }
 
-int
-update_value(NODE **head, char *pname, uint32_t optvalue)
-{
-    NODE *cur;
-    cur = *head;
-    uint32_t *x = &optvalue;
-    while (cur != NULL) {
-        if ((cur->p)->pname == pname) {
-            (cur->p)->otpvalue = *x;
-            return 0;
-        }
-        cur = cur->next;
-    }
-    return -1;
-}
-
 void
-push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue)
+push(NODE **head, char *pname, char *psecret, uint32_t otpvalue)
 {
-
     NODE *cur = (NODE *) malloc(sizeof(NODE));
     PROVIDER *p = (PROVIDER *) malloc(sizeof(PROVIDER));
 
     p->pname = pname;
     p->psecret = psecret;
     p->otpvalue = otpvalue;
-
     cur->p = p;
-
     cur->next = *head;
     *head = cur;
 }
@@ -155,7 +128,6 @@ push(NODE **head, char *pname, char *psecret, uint32_t *otpvalue)
 NODE
 *pop(NODE **head)
 {
-
     NODE *tmp = *head;
     *head = (*head)->next;
     return tmp;
@@ -164,13 +136,11 @@ NODE
 void
 del(char *del, NODE *head)
 {
-
     if(head == NULL)
         fprintf(stderr, "No valid list, no head found\n");
 
     NODE *cur = NULL;
     NODE *prev = NULL;
-
     cur = prev = head;
 
     while(cur != NULL && (strcmp((cur->p)->pname, del) != 0)) {
