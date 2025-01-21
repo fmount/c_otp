@@ -95,15 +95,14 @@ HOTP(uint8_t *key, size_t kl, uint64_t interval, int digits)
         interval = ((interval & 0x0000ffff0000ffff) << 16) | ((interval & 0xffff0000ffff0000) >> 16);
         interval = ((interval & 0x00ff00ff00ff00ff) <<  8) | ((interval & 0xff00ff00ff00ff00) >>  8);
     };
-
     //First Phase, get the digest of the message using the provided key ...
     digest = (uint8_t *)hmac(key, kl, interval);
     //digest = (uint8_t *)HMAC(EVP_sha1(), key, kl, (const unsigned char *)&interval, sizeof(interval), NULL, 0);
+
     //Second Phase, get the dbc from the algorithm
     uint32_t dbc = DT(digest);
     //Third Phase: calculate the mod_k of the dbc to get the correct number
     result = mod_hotp(dbc, digits);
 
     return result;
-
 }

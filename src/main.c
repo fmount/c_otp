@@ -22,10 +22,13 @@
 #define T0 0
 #define DIGITS 6
 #define VALIDITY 30
-#define TIME 2
+#define TIME 30
 #define VERSION 1.0
+// Maximum size for base32 secrets
+#define MAX_SECRET_LEN 64
 
-extern NODE *provider_list = NULL;
+NODE *provider_list = NULL;
+static char sec[MAX_SECRET_LEN];  // Static buffer, reused between calls
 
 void
 sig_handler(int sig)
@@ -45,49 +48,44 @@ totp(uint8_t *k, size_t keylen)
 }
 
 uint32_t
-accumulate(PROVIDER *cur_provider)
+get_otp(PROVIDER *cur_provider)
 {
-
     size_t pos, len, keylen;
     uint8_t *k;
     uint32_t otp;
-
     len = strlen(cur_provider->psecret);
-    char sec[len];
 
-    strcpy(sec, cur_provider->psecret);
-
-    k = (uint8_t *)&sec;
+    if (len >= MAX_SECRET_LEN) {
+        fprintf(stderr, "%s: key len error\n", cur_provider->pname);
+        return -1;
+    }
 
     if (validate_b32key(cur_provider->psecret, len, pos) == 1) {
         fprintf(stderr, "%s: invalid base32 secret\n", cur_provider->pname);
         return -1;
     }
 
+    strncpy(sec, cur_provider->psecret, MAX_SECRET_LEN-1);
+    sec[MAX_SECRET_LEN - 1] = '\0';
+    k = (uint8_t *)&sec;
     keylen = decode_b32key(&k, len);
     otp = totp(k, keylen);
     return otp;
 }
 
-
 void
 update_providers(int time, int mode)
 {
-
-    NODE *cur = provider_list;
-    NODE *head = provider_list;
-    uint32_t result;
-
     signal(SIGINT, sig_handler);
-
+    uint32_t result;
     while (1) {
+        NODE *cur = provider_list;
         while (cur != NULL) {
-            result = accumulate(cur->p);
-            update_value(&provider_list, (cur->p)->pname, result);
+            result = get_otp(cur->p);
+            (cur->p)->otpvalue = result;
             cur = cur->next;
         }
         print(provider_list, mode);
-        cur = head;
         sleep(TIME);
     }
 }
@@ -101,7 +99,6 @@ usage(char *arg)
 int
 main(int argc, char *argv[])
 {
-
     size_t pos;
     size_t len;
     size_t keylen;
@@ -110,7 +107,6 @@ main(int argc, char *argv[])
     char *key;
     int mode = 0;
     int opt;
-    uint32_t result;
 
     if (argc <= 1) {
         fprintf(stderr, "Provide at least one argument\n");
@@ -151,15 +147,17 @@ main(int argc, char *argv[])
 
     /* Single shot computing */
     if (sshot == 1) {
-        len = strlen(key);
-        if (validate_b32key(key, len, pos) == 1) {
-            fprintf(stderr, "%s: invalid base32 secret\n", key);
-            return -1;
-        }
-        k = (uint8_t *)key;
-        keylen = decode_b32key(&k, len);
-        result = totp(k, keylen);
+        PROVIDER *p;
+        p = malloc(sizeof(PROVIDER));
+        *p = (PROVIDER) {
+            .pname = "",
+            .psecret = key,
+            .otpvalue = -1,
+        };
+        uint32_t result;
+        result = get_otp(p);
         printf("The resulting OTP value is: %06u\n", result);
+        free(p);
         return 0;
     }
 
@@ -169,15 +167,16 @@ main(int argc, char *argv[])
     }
 
     load_providers(fname);
+    signal(SIGINT, sig_handler);
 
-    if (update == 1)
+    if (update == 1) {
         update_providers(TIME, mode);
-    else {
+    } else {
         NODE *cur = provider_list;
         uint32_t result;
         while (cur != NULL) {
-            result = accumulate(cur->p);
-            update_value(&provider_list, (cur->p)->pname, result);
+            result = get_otp(cur->p);
+            (cur->p)->otpvalue = result;
             cur = cur->next;
         }
         print(provider_list, mode);
