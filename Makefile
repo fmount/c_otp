@@ -3,7 +3,6 @@ D=0
 PRE="requirements.txt"
 SRC=$(wildcard src/*.c)
 LIBS=$(wildcard lib/*.c)
-#SRC := $(filter-out src/parser.c, $(SRC))
 OBJECTS=*.o
 TNAME=c_otp
 # compiler
