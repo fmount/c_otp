@@ -20,19 +20,16 @@
 #include<stdint.h>
 #include<stdbool.h>
 
-
 typedef struct {
     char *pname;
     char *psecret;
     uint32_t otpvalue;
 } PROVIDER;
 
-
 typedef struct Node {
     PROVIDER *p;
     struct Node *next;
 } NODE;
-
 
 void print(NODE *head, int mode);
 void print_status(NODE *head);

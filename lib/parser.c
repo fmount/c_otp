@@ -66,7 +66,6 @@ split_str(char *spl, char delim)
         free(tmp_name);
         return p;
     }
-    //
     // remove delim char from the allocation space
     size_t slen = totlen - 1;
     tmp_secret = (char *) malloc((slen-count) * sizeof(char) + 1);
