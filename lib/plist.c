@@ -65,7 +65,11 @@ print_status(NODE *head)
 
     printf("[");
     while (cur != NULL && (cur->p)->otpvalue != 0) {
-        printf("(%s: %06u)", (cur->p)->pname, (cur->p)->otpvalue);
+        if ((cur->p)->otpvalue == 0xFFFFFFFF) {
+            printf("(%s: %s)", (cur->p)->pname, "Invalid base32");
+        } else {
+            printf("(%s: %06u)", (cur->p)->pname, (cur->p)->otpvalue);
+        }
         cur = cur->next;
     }
     printf("]\n");
