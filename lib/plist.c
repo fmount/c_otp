@@ -17,6 +17,7 @@
 #include<string.h>
 #include "plist.h"
 
+const char *ERR = "Invalid base32";
 
 void
 print(NODE *head, int mode)
@@ -33,23 +34,36 @@ print(NODE *head, int mode)
     }
 }
 
+void repr_node_json(PROVIDER *p, char delim) {
+
+    if (!p || !p->pname) {
+        printf("\t\t\"unknown\": \"null\"%c\n", delim);
+        return;
+    }
+
+    if (p->otpvalue == 0xFFFFFFFF) {
+        printf("\t\t\"%s\": \"%s\"%c\n", p->pname, ERR, delim);
+    } else {
+        printf("\t\t\"%s\": \"%06u\"%c\n", p->pname, p->otpvalue, delim);
+    }
+}
+
 void
 print_json(NODE *head)
 {
+    if (!head) {
+        printf("{\"providers\":{}}\n");
+        return;
+    }
 
-    NODE *cur = NULL;
-    cur = head;
-    size_t len = get_len(head);
-    printf("{\n");
-    printf("\t\"providers\": {\n");
+    const NODE *cur = head;
+    const NODE *next = cur->next;
 
-    while (len > 0) {
-        if (len == 1)
-            printf("\t\t\"%s\": \"%06u\"\n", (cur->p)->pname, (cur->p)->otpvalue);
-        else
-            printf("\t\t\"%s\": \"%06u\",\n", (cur->p)->pname, (cur->p)->otpvalue);
-        cur = cur->next;
-        len--;
+    printf("{\n\t\"providers\": {\n");
+    while(cur) {
+        repr_node_json(cur->p, next ? ',': ' ');
+        cur = next;
+        next = cur ? cur->next : NULL;
     }
 
     printf("\t}\n");
