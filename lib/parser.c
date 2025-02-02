@@ -55,9 +55,8 @@ split_str(char *spl, char delim)
         count++;
     } while (spl[count] != delim && (count < totlen));
 
-    // we reached the end of the string w/o finding a delimiter
-    // this means this is not a malformed PROVIDER line, returning!
-    if (count == totlen) {
+    // Validate delimiter was found and not at start/end
+    if (count == 0 || count == totlen || count == totlen - 1) {
         return p;
     }
 

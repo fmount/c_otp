@@ -2,4 +2,9 @@
 protonmail:ORSXG5A=
 amazon:MVUGY3Y=
 google:ORSXG5A=
+$!\n/_goo:MVUGY3Y=
 #trello:ORSKGGGH5A=
+
+:foo # this is ignored
+bar: # this is invalid
+<foo>:</bar> # this is invalid
