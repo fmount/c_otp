@@ -61,7 +61,6 @@ get_otp(PROVIDER *cur_provider)
     }
 
     if (validate_b32key(cur_provider->psecret, len, pos) == 1) {
-        //fprintf(stderr, "ERR %s: invalid base32 secret\n", cur_provider->pname);
         return -1;
     }
 
@@ -156,7 +155,6 @@ main(int argc, char *argv[])
         };
         uint32_t result;
         result = get_otp(p);
-        //printf("The resulting OTP value is: %06u\n", result);
         printf("%06u\n", result);
         free(p);
         return 0;
